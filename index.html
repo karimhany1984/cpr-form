@@ -558,13 +558,14 @@
         <div class="field-note">0 = لا &nbsp;|&nbsp; 1 = نعم</div>
       </div>
       <!-- Col S: "0,1" -->
-      <div class="field">
+      <div class="field" id="formComplete-field">
         <label>نموذج التوثيق كامل البيانات <span class="req">*</span></label>
         <div class="radio-group">
           <input type="radio" name="formComplete" id="fc0" value="0"><label for="fc0">0</label>
           <input type="radio" name="formComplete" id="fc1" value="1"><label for="fc1">1</label>
         </div>
         <div class="field-note">0 = غير مكتمل &nbsp;|&nbsp; 1 = مكتمل</div>
+        <div class="na-auto-note" id="formComplete-auto-note">تم الضبط تلقائياً على 0 لعدم وجود نموذج CPR</div>
       </div>
     </div>
   </div>
@@ -771,6 +772,26 @@ function handleDischargeCondition() {
   updateProgress();
 }
 
+// ── hasCprForm = 0 → auto-set formComplete to 0 and lock ───────────────────
+function handleHasCprForm() {
+  const val = document.querySelector('input[name="hasCprForm"]:checked')?.value;
+  const field = document.getElementById('formComplete-field');
+  const note  = document.getElementById('formComplete-auto-note');
+  if (val === '0') {
+    document.getElementById('fc0').checked = true;
+    document.getElementById('fc1').checked = false;
+    field.classList.add('na-locked');
+    if (note) note.style.display = 'block';
+  } else {
+    field.classList.remove('na-locked');
+    if (note) note.style.display = 'none';
+  }
+  updateProgress();
+}
+document.querySelectorAll('input[name="hasCprForm"]').forEach(r =>
+  r.addEventListener('change', handleHasCprForm)
+);
+
 // ── Time calculations ───────────────────────────────────────────────────────
 function computeResponseTime() {
   const t1 = document.getElementById('codeBlueTime').value;
@@ -943,6 +964,11 @@ function resetForm(keepMeta=false) {
   // Unlock death fields
   document.getElementById('deathBefore24h-field').classList.remove('na-locked');
   document.getElementById('deathAfter24h-field').classList.remove('na-locked');
+  // Unlock formComplete field
+  const fcField = document.getElementById('formComplete-field');
+  if (fcField) fcField.classList.remove('na-locked');
+  const fcNote = document.getElementById('formComplete-auto-note');
+  if (fcNote) fcNote.style.display = 'none';
   updateProgress();
 }
 
