@@ -1116,7 +1116,7 @@ async function exportToExcel() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `Code_Blue_CPR_${records[0].hospital||'مستشفى'}_${records[0].month||''}_${records[0].year||''}.xlsx`;
+  a.download = `CPR_${records[0].hospital||'مستشفى'}_${records[0].month||''}_${records[0].year||''}.xlsx`;
   a.click();
   URL.revokeObjectURL(url);
   showToast(`✓ تم تصدير ${records.length} سجل بنجاح`, 'success');
