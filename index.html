@@ -1,1384 +1,681 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  <title>نموذج إدخال بيانات الإنعاش القلبي الرئوي</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="إنعاش قلبي" />
-  <meta name="theme-color" content="#0369a1" />
-  <link rel="manifest" href="manifest.json" />
-  <style>
-    :root {
-      --primary: #0369a1;
-      --primary-dark: #0284c7;
-      --primary-light: #e0f2fe;
-      --accent: #dc2626;
-      --success: #16a34a;
-      --warning: #d97706;
-      --bg: #f0f9ff;
-      --card: #ffffff;
-      --border: #bae6fd;
-      --text: #0c4a6e;
-      --text-muted: #64748b;
-      --shadow: 0 4px 20px rgba(3,105,161,0.12);
-      --radius: 14px;
-      --font: 'Cairo', sans-serif;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نموذج توثيق Code Blue / CPR</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface2: #f7f9fc;
+    --border: #d1dbe8;
+    --border-strong: #b0c0d4;
+    --accent: #1a5fa8;
+    --accent-light: #e8f0fa;
+    --accent2: #1478c8;
+    --gold: #b45309;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --text-label: #374151;
+    --success: #166534;
+    --success-bg: #dcfce7;
+    --error: #991b1b;
+    --error-bg: #fee2e2;
+    --header-bg: #1a3a6b;
+    --section-header-bg: #e8f0fa;
+    --readonly-bg: #fef9e7;
+    --readonly-border: #d4a017;
+    --readonly-text: #92400e;
+  }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      direction: rtl;
-    }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+  }
 
-    /* ===== HEADER ===== */
-    .header {
-      background: linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%);
-      color: white;
-      padding: 16px 20px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 12px rgba(3,105,161,0.3);
-    }
-    .header-inner {
-      max-width: 900px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .header-icon {
-      width: 44px; height: 44px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px;
-      flex-shrink: 0;
-    }
-    .header-text h1 { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
-    .header-text p { font-size: 12px; opacity: 0.85; margin-top: 1px; }
+  .top-banner {
+    background: var(--header-bg);
+    color: #fff;
+  }
+  .banner-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 22px 28px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .banner-icon {
+    width: 52px; height: 52px;
+    background: rgba(255,255,255,0.12);
+    border: 2px solid rgba(255,255,255,0.22);
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  .banner-text h1 { font-size: 19px; font-weight: 900; margin-bottom: 3px; }
+  .banner-text p { font-size: 13px; color: rgba(255,255,255,0.68); font-family: 'Tajawal', sans-serif; }
+  .banner-badge {
+    margin-right: auto;
+    background: rgba(220,38,38,0.82);
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    display: flex; align-items: center; gap: 7px;
+    flex-shrink: 0;
+  }
+  .pulse-dot {
+    width: 8px; height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    animation: dotPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes dotPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
 
-    /* ===== TABS ===== */
-    .tabs {
-      background: white;
-      border-bottom: 2px solid var(--border);
-      position: sticky;
-      top: 76px;
-      z-index: 90;
-    }
-    .tabs-inner {
-      max-width: 900px;
-      margin: 0 auto;
-      display: flex;
-    }
-    .tab-btn {
-      flex: 1;
-      padding: 14px 8px;
-      border: none;
-      background: none;
-      font-family: var(--font);
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.2s;
-      border-bottom: 3px solid transparent;
-      margin-bottom: -2px;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-    }
-    .tab-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
-    .tab-btn:hover:not(.active) { color: var(--text); background: #f8fafc; }
+  .progress-strip { background: rgba(255,255,255,0.1); height: 4px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg,#38bdf8,#7dd3fc); transition: width 0.4s ease; }
 
-    /* ===== MAIN CONTENT ===== */
-    .content { max-width: 900px; margin: 0 auto; padding: 20px 16px; }
+  .container { max-width: 960px; margin: 0 auto; padding: 26px 20px 60px; }
 
-    /* ===== CARD ===== */
-    .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-      margin-bottom: 20px;
-    }
-    .card-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding-bottom: 12px;
-      border-bottom: 2px solid var(--primary-light);
-    }
-    .card-title .icon {
-      width: 32px; height: 32px;
-      background: var(--primary-light);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
-    }
+  .meta-strip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 18px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  @media(max-width:700px){ .meta-strip { grid-template-columns: 1fr 1fr; } }
+  @media(max-width:420px){ .meta-strip { grid-template-columns: 1fr; } }
 
-    /* ===== FORM ===== */
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
-    .form-grid.cols-1 { grid-template-columns: 1fr; }
-    @media (max-width: 600px) {
-      .form-grid, .form-grid.cols-3 { grid-template-columns: 1fr; }
-    }
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 20px;
+    background: var(--section-header-bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .section-icon {
+    width: 30px; height: 30px;
+    background: var(--accent);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; color: #fff; flex-shrink: 0;
+  }
+  .section-title { font-size: 14px; font-weight: 700; color: var(--header-bg); }
+  .section-subtitle { font-size: 11px; color: var(--text-muted); font-family: 'Tajawal', sans-serif; }
+  .section-body {
+    padding: 18px 22px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .full-width { grid-column: 1 / -1; }
+  @media(max-width:580px){ .section-body { grid-template-columns: 1fr; } .full-width { grid-column: 1; } }
 
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .field.span-2 { grid-column: span 2; }
-    @media (max-width: 600px) { .field.span-2 { grid-column: span 1; } }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-size: 12.5px; font-weight: 600;
+    color: var(--text-label);
+    font-family: 'Tajawal', sans-serif;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .req { color: #dc2626; font-size: 14px; line-height: 1; }
+  .auto-tag {
+    font-size: 10px;
+    background: #fef3c7; color: #92400e;
+    border: 1px solid #fcd34d;
+    padding: 1px 7px; border-radius: 4px; font-weight: 500;
+  }
 
-    label {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-    }
-    label .req { color: var(--accent); margin-right: 2px; }
+  .field input, .field select {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 13.5px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    text-align: right;
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 3px rgba(20,120,200,0.1);
+    background: #fafcff;
+  }
+  .field select option { background: #fff; color: var(--text); }
+  .field input[readonly] {
+    background: var(--readonly-bg);
+    border-color: var(--readonly-border);
+    color: var(--readonly-text);
+    cursor: default; font-weight: 600;
+  }
 
-    input, select, textarea {
-      font-family: var(--font);
-      font-size: 14px;
-      padding: 10px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      background: #f8fafc;
-      color: var(--text);
-      transition: all 0.2s;
-      width: 100%;
-      outline: none;
-      direction: rtl;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--primary);
-      background: white;
-      box-shadow: 0 0 0 3px rgba(3,105,161,0.1);
-    }
-    input[type="checkbox"] {
-      width: 18px; height: 18px;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    textarea { resize: vertical; min-height: 80px; }
+  /* Pill radio — 0 / 1 / NA */
+  .radio-group { display: flex; gap: 6px; }
+  .radio-group input[type=radio] { display: none; }
+  .radio-group label {
+    flex: 1;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-size: 13.5px; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: #fff;
+    color: var(--text-muted);
+    font-family: 'Cairo', sans-serif;
+    user-select: none;
+  }
+  .radio-group input[type=radio]:checked + label {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+  .radio-group label:hover { border-color: var(--accent2); color: var(--accent2); background: #f0f7ff; }
 
-    .checkbox-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .checkbox-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: #f8fafc;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .checkbox-item:has(input:checked) {
-      background: var(--primary-light);
-      border-color: var(--primary);
-      color: var(--primary);
-    }
+  /* Toggle — نجاة / وفاة */
+  .toggle-group { display: flex; gap: 8px; }
+  .toggle-group input[type=radio] { display: none; }
+  .toggle-group label {
+    flex: 1; text-align: center;
+    padding: 9px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-size: 13.5px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s;
+    background: #fff; color: var(--text-muted);
+    font-family: 'Cairo', sans-serif; user-select: none;
+  }
+  .toggle-group input[value="نجاه"]:checked + label {
+    border-color: #15803d; background: #dcfce7; color: #15803d;
+  }
+  .toggle-group input[value="وفاة"]:checked + label {
+    border-color: #dc2626; background: #fee2e2; color: #dc2626;
+  }
+  .toggle-group label:hover { border-color: var(--accent2); background: #f0f7ff; color: var(--accent2); }
 
-    /* ===== RADIO BUTTONS ===== */
-    .radio-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .radio-btn {
-      display: flex; align-items: center; gap: 6px;
-      background: #f8fafc;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 13px;
-      font-weight: 500;
-      user-select: none;
-    }
-    .radio-btn input[type="radio"] {
-      width: 16px; height: 16px;
-      accent-color: var(--primary);
-    }
-    .radio-btn:has(input:checked) {
-      background: var(--primary-light);
-      border-color: var(--primary);
-      color: var(--primary);
-    }
+  .field-note { font-size: 10.5px; color: var(--text-muted); font-family: 'Tajawal', sans-serif; }
 
-    /* ===== TIME INPUTS ===== */
-    .time-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .time-row .field { flex: 1; min-width: 140px; }
+  /* RECORDS */
+  .records-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .records-header {
+    padding: 12px 20px;
+    background: var(--section-header-bg);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .records-title { font-size: 14px; font-weight: 700; color: var(--header-bg); display: flex; align-items: center; gap: 10px; }
+  .count-badge { background: var(--accent); color: #fff; font-size: 12px; padding: 2px 10px; border-radius: 99px; font-weight: 700; }
+  .records-list { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .record-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 14px;
+    display: flex; align-items: center; gap: 11px;
+    transition: border-color 0.2s;
+  }
+  .record-item:hover { border-color: var(--accent2); }
+  .record-num {
+    width: 30px; height: 30px;
+    background: var(--accent); color: #fff;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
+  }
+  .record-info { flex: 1; min-width: 0; }
+  .record-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .record-meta { font-size: 12px; color: var(--text-muted); font-family: 'Tajawal', sans-serif; }
+  .outcome-pill { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 5px; flex-shrink: 0; }
+  .o-survived { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+  .o-died { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+  .o-unknown { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+  .record-del {
+    background: #fff; border: 1px solid #fca5a5; color: #dc2626;
+    border-radius: 6px; padding: 5px 10px; cursor: pointer; font-size: 13px;
+    transition: background 0.15s; flex-shrink: 0;
+  }
+  .record-del:hover { background: #fee2e2; }
+  .empty-state { padding: 34px; text-align: center; color: var(--text-muted); font-family: 'Tajawal', sans-serif; font-size: 14px; }
+  .empty-icon { font-size: 34px; margin-bottom: 8px; opacity: 0.35; }
 
-    /* ===== SECTION DIVIDER ===== */
-    .section-divider {
-      height: 1px;
-      background: linear-gradient(90deg, var(--primary-light) 0%, transparent 100%);
-      margin: 16px 0;
-    }
+  /* BUTTONS */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 22px; border-radius: 8px;
+    font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700;
+    cursor: pointer; border: none; transition: all 0.15s; width: 100%;
+  }
+  .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(26,95,168,0.2); }
+  .btn-primary:hover { background: #155196; }
+  .btn-export { background: #166534; color: #fff; box-shadow: 0 2px 8px rgba(22,101,52,0.18); }
+  .btn-export:hover { background: #145728; }
+  .btn-reset { background: #fff; color: var(--text-muted); border: 1.5px solid var(--border); }
+  .btn-reset:hover { background: var(--surface2); color: var(--text); }
+  .actions-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 14px; }
+  @media(max-width:500px){ .actions-grid { grid-template-columns: 1fr; } }
 
-    /* ===== OUTCOME BUTTONS ===== */
-    .outcome-btns {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .outcome-btn {
-      flex: 1;
-      min-width: 120px;
-      padding: 12px 16px;
-      border: 2px solid var(--border);
-      border-radius: 10px;
-      background: #f8fafc;
-      font-family: var(--font);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-align: center;
-    }
-    .outcome-btn.rosc { color: var(--success); }
-    .outcome-btn.rosc:hover, .outcome-btn.rosc.active {
-      background: #f0fdf4; border-color: var(--success); box-shadow: 0 0 0 3px rgba(22,163,74,0.1);
-    }
-    .outcome-btn.death { color: var(--accent); }
-    .outcome-btn.death:hover, .outcome-btn.death.active {
-      background: #fef2f2; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(220,38,38,0.1);
-    }
-    .outcome-btn.transfer { color: var(--warning); }
-    .outcome-btn.transfer:hover, .outcome-btn.transfer.active {
-      background: #fffbeb; border-color: var(--warning); box-shadow: 0 0 0 3px rgba(217,119,6,0.1);
-    }
+  .divider { height: 1px; background: var(--border); margin: 4px 0 16px; }
 
-    /* ===== SUBMIT BUTTON ===== */
-    .btn-primary {
-      background: linear-gradient(135deg, #0369a1, #0284c7);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 14px 28px;
-      font-family: var(--font);
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      width: 100%;
-      box-shadow: 0 4px 15px rgba(3,105,161,0.3);
-    }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(3,105,161,0.4); }
-    .btn-primary:active { transform: translateY(0); }
-
-    .btn-secondary {
-      background: white;
-      color: var(--primary);
-      border: 2px solid var(--primary);
-      border-radius: 12px;
-      padding: 10px 20px;
-      font-family: var(--font);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-secondary:hover { background: var(--primary-light); }
-
-    .btn-danger {
-      background: white;
-      color: var(--accent);
-      border: 2px solid var(--accent);
-      border-radius: 8px;
-      padding: 6px 12px;
-      font-family: var(--font);
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-danger:hover { background: #fef2f2; }
-
-    /* ===== TOAST ===== */
-    .toast {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-80px);
-      background: var(--success);
-      color: white;
-      padding: 14px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 15px;
-      z-index: 9999;
-      box-shadow: 0 8px 30px rgba(22,163,74,0.4);
-      transition: transform 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .toast.show { transform: translateX(-50%) translateY(0); }
-    .toast.error { background: var(--accent); box-shadow: 0 8px 30px rgba(220,38,38,0.4); }
-
-    /* ===== CASES LIST ===== */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .stat-card {
-      background: white;
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
-    .stat-number { font-size: 28px; font-weight: 800; color: var(--primary); }
-    .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-top: 4px; }
-
-    .case-item {
-      background: white;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
-      border: 1px solid var(--border);
-      box-shadow: 0 2px 8px rgba(3,105,161,0.06);
-      transition: all 0.2s;
-    }
-    .case-item:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-    .case-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 10px;
-    }
-    .case-id {
-      font-size: 12px;
-      font-weight: 700;
-      color: white;
-      background: var(--primary);
-      padding: 3px 10px;
-      border-radius: 20px;
-    }
-    .case-date { font-size: 12px; color: var(--text-muted); }
-    .case-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 20px;
-    }
-    .badge-blue { background: var(--primary-light); color: var(--primary); }
-    .badge-green { background: #f0fdf4; color: var(--success); }
-    .badge-red { background: #fef2f2; color: var(--accent); }
-    .badge-yellow { background: #fffbeb; color: var(--warning); }
-    .badge-gray { background: #f1f5f9; color: #64748b; }
-
-    .case-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-      justify-content: flex-end;
-    }
-
-    /* ===== EMPTY STATE ===== */
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-    }
-    .empty-state .emoji { font-size: 64px; margin-bottom: 16px; }
-    .empty-state h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-    .empty-state p { color: var(--text-muted); font-size: 14px; }
-
-    /* ===== EXPORT BUTTONS ===== */
-    .export-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-    .export-row button {
-      flex: 1;
-      min-width: 140px;
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-family: var(--font);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.2s;
-    }
-    .btn-export-csv {
-      background: #f0fdf4;
-      color: var(--success);
-      border: 2px solid #bbf7d0;
-    }
-    .btn-export-csv:hover { background: #dcfce7; }
-    .btn-export-print {
-      background: #eff6ff;
-      color: #2563eb;
-      border: 2px solid #bfdbfe;
-    }
-    .btn-export-print:hover { background: #dbeafe; }
-
-    /* ===== OFFLINE BANNER ===== */
-    #offline-banner {
-      display: none;
-      background: var(--warning);
-      color: white;
-      text-align: center;
-      padding: 10px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    /* ===== HIDDEN ===== */
-    .hidden { display: none !important; }
-
-    /* ===== CONFIRM MODAL ===== */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .modal {
-      background: white;
-      border-radius: var(--radius);
-      padding: 24px;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-    .modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
-    .modal p { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
-    .modal-btns { display: flex; gap: 10px; }
-    .modal-btns button { flex: 1; padding: 12px; border-radius: 10px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; }
-    .modal-confirm { background: var(--accent); color: white; border: none; }
-    .modal-confirm:hover { opacity: 0.9; }
-    .modal-cancel { background: white; color: var(--text-muted); border: 2px solid var(--border); }
-
-    /* ===== PRINT STYLES ===== */
-    @media print {
-      .header, .tabs, .export-row, .case-actions, #offline-banner { display: none !important; }
-      .content { padding: 0; }
-      .case-item { break-inside: avoid; border: 1px solid #ccc !important; box-shadow: none !important; }
-    }
-
-    /* ===== REPORT CHARTS ===== */
-    .chart-container {
-      position: relative;
-      height: 200px;
-      display: flex;
-      align-items: flex-end;
-      gap: 8px;
-      padding: 10px 0 30px;
-    }
-    .chart-bar-wrapper {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100%;
-      position: relative;
-    }
-    .chart-bar {
-      width: 100%;
-      max-width: 50px;
-      border-radius: 6px 6px 0 0;
-      transition: height 0.5s ease;
-      position: absolute;
-      bottom: 30px;
-      min-height: 4px;
-    }
-    .chart-bar-label {
-      position: absolute;
-      bottom: 0;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-align: center;
-      width: 100%;
-    }
-    .chart-bar-value {
-      position: absolute;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text);
-      width: 100%;
-      text-align: center;
-    }
-
-    /* ===== DONUT CHART ===== */
-    .donut-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    @media (max-width: 500px) { .donut-row { grid-template-columns: 1fr; } }
-    .donut-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-    .donut-legend { width: 100%; }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      margin-bottom: 6px;
-    }
-    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-    .legend-text { flex: 1; }
-    .legend-val { font-weight: 700; }
-  </style>
+  .toast {
+    position: fixed; bottom: 26px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 11px 22px;
+    font-family: 'Cairo', sans-serif; font-size: 13.5px; font-weight: 600;
+    z-index: 999;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+    white-space: nowrap; display: flex; align-items: center; gap: 8px;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: #86efac; color: #15803d; background: #f0fdf4; }
+  .toast.error { border-color: #fca5a5; color: #dc2626; background: #fff8f8; }
+</style>
 </head>
 <body>
 
-<div id="offline-banner">⚠️ أنت غير متصل بالإنترنت — البيانات محفوظة محلياً</div>
-
-<header class="header">
-  <div class="header-inner">
-    <div class="header-icon">❤️</div>
-    <div class="header-text">
-      <h1>نموذج الإنعاش القلبي الرئوي</h1>
-      <p>نظام إدخال وتتبع حالات الإنعاش القلبي الرئوي</p>
+<div class="top-banner">
+  <div class="banner-inner">
+    <div class="banner-icon">🏥</div>
+    <div class="banner-text">
+      <h1>نموذج توثيق Code Blue / CPR</h1>
+      <p>محافظة الإسكندرية — نظام توثيق حالات الإنعاش القلبي الرئوي</p>
     </div>
+    <div class="banner-badge"><div class="pulse-dot"></div>CODE BLUE</div>
   </div>
-</header>
-
-<nav class="tabs">
-  <div class="tabs-inner">
-    <button class="tab-btn active" onclick="showTab('entry')" id="tab-entry">
-      <span>📝</span> إدخال حالة جديدة
-    </button>
-    <button class="tab-btn" onclick="showTab('cases')" id="tab-cases">
-      <span>📋</span> الحالات
-      <span id="case-count-badge" style="background:#0369a1;color:white;border-radius:20px;padding:1px 8px;font-size:12px;">0</span>
-    </button>
-    <button class="tab-btn" onclick="showTab('report')" id="tab-report">
-      <span>📊</span> التقارير
-    </button>
-  </div>
-</nav>
-
-<main class="content">
-
-  <!-- ======================== ENTRY TAB ======================== -->
-  <div id="pane-entry">
-
-    <!-- معلومات المريض -->
-    <div class="card">
-      <div class="card-title">
-        <div class="icon">🧑‍⚕️</div>
-        معلومات المريض
-      </div>
-      <div class="form-grid">
-        <div class="field">
-          <label>رقم ملف المريض</label>
-          <input type="text" id="mrn" placeholder="أدخل رقم الملف" />
-        </div>
-        <div class="field">
-          <label>اسم المريض (اختياري)</label>
-          <input type="text" id="pt-name" placeholder="الاسم الكامل" />
-        </div>
-        <div class="field">
-          <label>العمر <span class="req">*</span></label>
-          <input type="number" id="pt-age" placeholder="بالسنوات" min="0" max="130" />
-        </div>
-        <div class="field">
-          <label>الجنس <span class="req">*</span></label>
-          <select id="pt-gender">
-            <option value="">اختر الجنس</option>
-            <option value="ذكر">ذكر</option>
-            <option value="أنثى">أنثى</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>الوزن (كجم)</label>
-          <input type="number" id="pt-weight" placeholder="الوزن بالكيلوغرام" min="0" />
-        </div>
-        <div class="field">
-          <label>القسم / الوحدة <span class="req">*</span></label>
-          <select id="pt-ward">
-            <option value="">اختر القسم</option>
-            <option>العناية المركزة</option>
-            <option>طوارئ</option>
-            <option>جراحة</option>
-            <option>باطنة</option>
-            <option>قلبية</option>
-            <option>عظام</option>
-            <option>نساء وولادة</option>
-            <option>أطفال</option>
-            <option>عناية أطفال</option>
-            <option>عصبية</option>
-            <option>أورام</option>
-            <option>كلى</option>
-            <option>مشي خارجي</option>
-            <option>أخرى</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <!-- توقيت الحادثة -->
-    <div class="card">
-      <div class="card-title">
-        <div class="icon">⏱️</div>
-        توقيت الحادثة
-      </div>
-      <div class="form-grid">
-        <div class="field">
-          <label>تاريخ التوقف القلبي <span class="req">*</span></label>
-          <input type="date" id="arrest-date" />
-        </div>
-        <div class="field">
-          <label>وقت التوقف القلبي <span class="req">*</span></label>
-          <input type="time" id="arrest-time" />
-        </div>
-        <div class="field">
-          <label>وقت بدء الإنعاش</label>
-          <input type="time" id="cpr-start" />
-        </div>
-        <div class="field">
-          <label>وقت انتهاء الإنعاش</label>
-          <input type="time" id="cpr-end" />
-        </div>
-        <div class="field">
-          <label>مدة الإنعاش (دقيقة)</label>
-          <input type="number" id="cpr-duration" placeholder="تُحسب تلقائياً" min="0" readonly style="background:#f1f5f9;color:#64748b;" />
-        </div>
-        <div class="field">
-          <label>وقت ROSC (إن وُجد)</label>
-          <input type="time" id="rosc-time" />
-        </div>
-      </div>
-    </div>
-
-    <!-- موقع وسبب التوقف -->
-    <div class="card">
-      <div class="card-title">
-        <div class="icon">📍</div>
-        موقع وسبب التوقف القلبي
-      </div>
-      <div class="form-grid">
-        <div class="field">
-          <label>مكان حدوث التوقف</label>
-          <select id="arrest-location">
-            <option value="">اختر الموقع</option>
-            <option>داخل المستشفى — قسم رعاية حادة</option>
-            <option>داخل المستشفى — غرفة عادية</option>
-            <option>داخل المستشفى — غرفة عمليات</option>
-            <option>داخل المستشفى — قسم طوارئ</option>
-            <option>خارج المستشفى</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>السبب الرئيسي للتوقف</label>
-          <select id="arrest-cause">
-            <option value="">اختر السبب</option>
-            <option>قلبي — توقف بطيني VF</option>
-            <option>قلبي — تسرع بطيني بلا نبض VT</option>
-            <option>قلبي — نشاط كهربائي بلا نبض PEA</option>
-            <option>قلبي — توقف تام Asystole</option>
-            <option>تنفسي — قصور تنفسي</option>
-            <option>تنفسي — انسداد مجرى الهواء</option>
-            <option>صدمة نزفية</option>
-            <option>جلطة رئوية</option>
-            <option>جلطة قلبية</option>
-            <option>اضطراب شوارد</option>
-            <option>تسمم / جرعة دوائية</option>
-            <option>صدمة كهربائية</option>
-            <option>غرق</option>
-            <option>صدمة نفسية حادة</option>
-            <option>غير محدد</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>إيقاع أول مُسجّل</label>
-          <select id="first-rhythm">
-            <option value="">اختر الإيقاع</option>
-            <option>رجفان بطيني VF</option>
-            <option>تسرع بطيني VT</option>
-            <option>نشاط كهربائي بلا نبض PEA</option>
-            <option>توقف تام Asystole</option>
-            <option>سينوسي طبيعي</option>
-            <option>غير معروف</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>هل كان التوقف مشهوداً؟</label>
-          <div class="radio-group">
-            <label class="radio-btn"><input type="radio" name="witnessed" value="نعم" /> نعم</label>
-            <label class="radio-btn"><input type="radio" name="witnessed" value="لا" /> لا</label>
-            <label class="radio-btn"><input type="radio" name="witnessed" value="غير محدد" /> غير محدد</label>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- تدخلات الإنعاش -->
-    <div class="card">
-      <div class="card-title">
-        <div class="icon">💊</div>
-        تدخلات الإنعاش
-      </div>
-
-      <div class="form-grid">
-        <div class="field">
-          <label>نوع ضغطات الصدر</label>
-          <select id="compression-type">
-            <option value="">اختر</option>
-            <option>يدوي</option>
-            <option>آلي (LUCAS)</option>
-            <option>آلي (AutoPulse)</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>نوع مجرى الهواء</label>
-          <select id="airway-type">
-            <option value="">اختر</option>
-            <option>قناع وجه فقط</option>
-            <option>تنبيب رغامي</option>
-            <option>مجرى هوائي فوق المزمار (SGA)</option>
-            <option>غير محدد</option>
-          </select>
-        </div>
-      </div>
-
-      <div style="margin-top:16px;">
-        <label style="display:block;margin-bottom:10px;">الأدوية المُعطاة</label>
-        <div class="checkbox-group" id="drugs-group">
-          <label class="checkbox-item"><input type="checkbox" value="أدرينالين" /> أدرينالين</label>
-          <label class="checkbox-item"><input type="checkbox" value="أميودارون" /> أميودارون</label>
-          <label class="checkbox-item"><input type="checkbox" value="بيكربونات صوديوم" /> بيكربونات صوديوم</label>
-          <label class="checkbox-item"><input type="checkbox" value="كالسيوم" /> كالسيوم</label>
-          <label class="checkbox-item"><input type="checkbox" value="أتروبين" /> أتروبين</label>
-          <label class="checkbox-item"><input type="checkbox" value="ليدوكايين" /> ليدوكايين</label>
-          <label class="checkbox-item"><input type="checkbox" value="ماغنيسيوم" /> ماغنيسيوم</label>
-          <label class="checkbox-item"><input type="checkbox" value="فازوبريسين" /> فازوبريسين</label>
-          <label class="checkbox-item"><input type="checkbox" value="أدوية أخرى" /> أدوية أخرى</label>
-        </div>
-      </div>
-
-      <div style="margin-top:16px;">
-        <label style="display:block;margin-bottom:10px;">إجراءات أخرى</label>
-        <div class="checkbox-group" id="procedures-group">
-          <label class="checkbox-item"><input type="checkbox" value="صدمة كهربائية" /> صدمة كهربائية ⚡</label>
-          <label class="checkbox-item"><input type="checkbox" value="ناظم نبض مؤقت" /> ناظم نبض مؤقت</label>
-          <label class="checkbox-item"><input type="checkbox" value="ECMO" /> ECMO</label>
-          <label class="checkbox-item"><input type="checkbox" value="قسطرة مركزية" /> قسطرة مركزية</label>
-          <label class="checkbox-item"><input type="checkbox" value="تصوير مقطعي فوري" /> تصوير مقطعي فوري</label>
-          <label class="checkbox-item"><input type="checkbox" value="قسطرة قلبية" /> قسطرة قلبية</label>
-        </div>
-      </div>
-
-      <div class="form-grid" style="margin-top:16px;">
-        <div class="field">
-          <label>عدد الصدمات الكهربائية</label>
-          <input type="number" id="shock-count" placeholder="0" min="0" />
-        </div>
-        <div class="field">
-          <label>جرعة الأدرينالين (ملغ)</label>
-          <input type="number" id="epi-dose" placeholder="مثال: 3" min="0" step="0.5" />
-        </div>
-      </div>
-    </div>
-
-    <!-- الفريق -->
-    <div class="card">
-      <div class="card-title">
-        <div class="icon">👥</div>
-        الفريق الطبي وقائد الإنعاش
-      </div>
-      <div class="form-grid">
-        <div class="field">
-          <label>اسم قائد الإنعاش</label>
-          <input type="text" id="team-leader" placeholder="اسم الطبيب المسؤول" />
-        </div>
-        <div class="field">
-          <label>التخصص</label>
-          <select id="leader-specialty">
-            <option value="">اختر التخصص</option>
-            <option>طوارئ</option>
-            <option>عناية مركزة</option>
-            <option>قلبية</option>
-            <option>باطنة</option>
-            <option>جراحة</option>
-            <option>تخدير</option>
-            <option>أخرى</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>عدد أفراد الفريق</label>
-          <input type="number" id="team-size" placeholder="عدد أفراد الفريق" min="1" />
-        </div>
-        <div class="field">
-          <label>هل حضر أخصائي تخدير؟</label>
-          <div class="radio-group">
-            <label class="radio-btn"><input type="radio" name="anesthesia" value="نعم" /> نعم</label>
-            <label class="radio-btn"><input type="radio" name="anesthesia" value="لا" /> لا</label>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- النتيجة -->
-    <div class="card">
-      <div class="card-title">
-        <div class="icon">🏥</div>
-        نتيجة الإنعاش
-      </div>
-
-      <div style="margin-bottom:16px;">
-        <label style="display:block;margin-bottom:10px;font-size:15px;">النتيجة النهائية <span class="req">*</span></label>
-        <div class="outcome-btns">
-          <button class="outcome-btn rosc" onclick="setOutcome('ROSC')" id="outcome-ROSC">
-            💚 عودة الدورة الدموية (ROSC)
-          </button>
-          <button class="outcome-btn death" onclick="setOutcome('وفاة')" id="outcome-وفاة">
-            ❌ وفاة
-          </button>
-          <button class="outcome-btn transfer" onclick="setOutcome('تحويل')" id="outcome-تحويل">
-            🔄 تحويل
-          </button>
-        </div>
-      </div>
-
-      <div id="rosc-details" class="hidden">
-        <div class="section-divider"></div>
-        <div class="form-grid">
-          <div class="field">
-            <label>مدة ROSC (دقيقة)</label>
-            <input type="number" id="rosc-duration" placeholder="كم دقيقة استمر ROSC" min="0" />
-          </div>
-          <div class="field">
-            <label>حالة المريض بعد ROSC</label>
-            <select id="post-rosc-status">
-              <option value="">اختر</option>
-              <option>مستقر في العناية</option>
-              <option>عودة توقف قلبي</option>
-              <option>تحسن وتحويل لقسم آخر</option>
-              <option>وفاة لاحقة</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-top:16px;" class="form-grid cols-1">
-        <div class="field">
-          <label>ملاحظات إضافية</label>
-          <textarea id="notes" placeholder="أي معلومات إضافية عن الحالة..."></textarea>
-        </div>
-      </div>
-
-      <div style="margin-top:20px;">
-        <button class="btn-primary" onclick="saveCase()">
-          💾 حفظ الحالة
-        </button>
-      </div>
-    </div>
-
-  </div><!-- end entry pane -->
-
-
-  <!-- ======================== CASES TAB ======================== -->
-  <div id="pane-cases" class="hidden">
-
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-number" id="stat-total">0</div>
-        <div class="stat-label">إجمالي الحالات</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="stat-rosc" style="color:var(--success)">0</div>
-        <div class="stat-label">ROSC ناجح</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="stat-death" style="color:var(--accent)">0</div>
-        <div class="stat-label">وفاة</div>
-      </div>
-    </div>
-
-    <div class="export-row">
-      <button class="btn-export-csv" onclick="exportCSV()">📥 تصدير CSV</button>
-      <button class="btn-export-print" onclick="window.print()">🖨️ طباعة</button>
-    </div>
-
-    <div id="cases-list"></div>
-
-  </div><!-- end cases pane -->
-
-
-  <!-- ======================== REPORT TAB ======================== -->
-  <div id="pane-report" class="hidden">
-
-    <div class="card">
-      <div class="card-title">
-        <div class="icon">📊</div>
-        ملخص إحصائي
-      </div>
-      <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-number" id="r-total">0</div>
-          <div class="stat-label">إجمالي الحالات</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" id="r-rosc-rate" style="color:var(--success)">0%</div>
-          <div class="stat-label">معدل ROSC</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" id="r-avg-dur">—</div>
-          <div class="stat-label">متوسط مدة الإنعاش</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">
-        <div class="icon">🍩</div>
-        توزيع النتائج
-      </div>
-      <div class="donut-row">
-        <div class="donut-wrap">
-          <svg width="140" height="140" viewBox="0 0 140 140" id="donut-svg">
-            <circle cx="70" cy="70" r="56" fill="none" stroke="#e2e8f0" stroke-width="22"/>
-            <circle cx="70" cy="70" r="56" fill="none" stroke="#16a34a" stroke-width="22"
-              id="donut-rosc" stroke-dasharray="0 352" stroke-linecap="round"
-              transform="rotate(-90 70 70)" />
-            <circle cx="70" cy="70" r="56" fill="none" stroke="#dc2626" stroke-width="22"
-              id="donut-death" stroke-dasharray="0 352" stroke-linecap="round"
-              transform="rotate(-90 70 70)" />
-            <circle cx="70" cy="70" r="56" fill="none" stroke="#d97706" stroke-width="22"
-              id="donut-transfer" stroke-dasharray="0 352" stroke-linecap="round"
-              transform="rotate(-90 70 70)" />
-            <text x="70" y="66" text-anchor="middle" font-family="Cairo,sans-serif" font-size="22" font-weight="800" fill="#0c4a6e" id="donut-center-num">0</text>
-            <text x="70" y="82" text-anchor="middle" font-family="Cairo,sans-serif" font-size="11" fill="#64748b">حالة</text>
-          </svg>
-          <div class="donut-legend" id="donut-legend"></div>
-        </div>
-        <div>
-          <div style="margin-bottom:16px;">
-            <div class="legend-item" style="margin-bottom:12px;font-size:14px;font-weight:700;color:var(--primary)">توزيع الأسباب</div>
-            <div id="causes-list" style="font-size:13px;"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">
-        <div class="icon">📈</div>
-        الحالات حسب القسم
-      </div>
-      <div class="chart-container" id="ward-chart"></div>
-    </div>
-
-  </div><!-- end report pane -->
-
-</main>
-
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-
-<!-- Confirm Modal -->
-<div class="modal-overlay hidden" id="modal-overlay">
-  <div class="modal">
-    <h3>تأكيد الحذف</h3>
-    <p>هل أنت متأكد من حذف هذه الحالة؟ لا يمكن التراجع عن هذا الإجراء.</p>
-    <div class="modal-btns">
-      <button class="modal-confirm" id="modal-confirm">حذف</button>
-      <button class="modal-cancel" onclick="closeModal()">إلغاء</button>
-    </div>
-  </div>
+  <div class="progress-strip"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
 </div>
 
-<script>
-// ===== STATE =====
-let cases = JSON.parse(localStorage.getItem('cpr_cases_v2') || '[]');
-let selectedOutcome = '';
-let deleteTarget = null;
+<div class="container">
 
-// ===== INIT =====
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('arrest-date').value = new Date().toISOString().split('T')[0];
-  updateCaseBadge();
-  updateStats();
-  renderReport();
-
-  // auto-calc duration
-  ['cpr-start','cpr-end'].forEach(id => {
-    document.getElementById(id).addEventListener('change', calcDuration);
-  });
-
-  // offline
-  window.addEventListener('offline', () => document.getElementById('offline-banner').style.display = 'block');
-  window.addEventListener('online', () => document.getElementById('offline-banner').style.display = 'none');
-  if (!navigator.onLine) document.getElementById('offline-banner').style.display = 'block';
-
-  // service worker
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/cpr-form/sw.js').catch(() => {});
-  }
-});
-
-function calcDuration() {
-  const s = document.getElementById('cpr-start').value;
-  const e = document.getElementById('cpr-end').value;
-  if (s && e) {
-    const [sh,sm] = s.split(':').map(Number);
-    const [eh,em] = e.split(':').map(Number);
-    let mins = (eh*60+em) - (sh*60+sm);
-    if (mins < 0) mins += 1440;
-    document.getElementById('cpr-duration').value = mins;
-  }
-}
-
-// ===== TABS =====
-function showTab(tab) {
-  ['entry','cases','report'].forEach(t => {
-    document.getElementById(`pane-${t}`).classList.toggle('hidden', t !== tab);
-    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
-  });
-  if (tab === 'cases') renderCases();
-  if (tab === 'report') renderReport();
-}
-
-// ===== OUTCOME =====
-function setOutcome(val) {
-  selectedOutcome = val;
-  document.querySelectorAll('.outcome-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(`outcome-${val}`)?.classList.add('active');
-  document.getElementById('rosc-details').classList.toggle('hidden', val !== 'ROSC');
-}
-
-// ===== SAVE =====
-function saveCase() {
-  const age = document.getElementById('pt-age').value;
-  const gender = document.getElementById('pt-gender').value;
-  const ward = document.getElementById('pt-ward').value;
-  const arrestDate = document.getElementById('arrest-date').value;
-  const arrestTime = document.getElementById('arrest-time').value;
-
-  if (!age || !gender || !ward || !arrestDate || !arrestTime || !selectedOutcome) {
-    showToast('⚠️ يرجى تعبئة الحقول المطلوبة: العمر، الجنس، القسم، تاريخ ووقت التوقف، والنتيجة', true);
-    return;
-  }
-
-  const drugs = [...document.querySelectorAll('#drugs-group input:checked')].map(i => i.value);
-  const procedures = [...document.querySelectorAll('#procedures-group input:checked')].map(i => i.value);
-  const witnessed = document.querySelector('input[name="witnessed"]:checked')?.value || '';
-  const anesthesia = document.querySelector('input[name="anesthesia"]:checked')?.value || '';
-
-  const c = {
-    id: 'CPR-' + Date.now(),
-    ts: new Date().toISOString(),
-    mrn: document.getElementById('mrn').value,
-    name: document.getElementById('pt-name').value,
-    age, gender,
-    weight: document.getElementById('pt-weight').value,
-    ward,
-    arrestDate, arrestTime,
-    cprStart: document.getElementById('cpr-start').value,
-    cprEnd: document.getElementById('cpr-end').value,
-    cprDuration: document.getElementById('cpr-duration').value,
-    roscTime: document.getElementById('rosc-time').value,
-    location: document.getElementById('arrest-location').value,
-    cause: document.getElementById('arrest-cause').value,
-    firstRhythm: document.getElementById('first-rhythm').value,
-    witnessed,
-    compressionType: document.getElementById('compression-type').value,
-    airwayType: document.getElementById('airway-type').value,
-    drugs: drugs.join('، '),
-    procedures: procedures.join('، '),
-    shockCount: document.getElementById('shock-count').value,
-    epiDose: document.getElementById('epi-dose').value,
-    teamLeader: document.getElementById('team-leader').value,
-    leaderSpecialty: document.getElementById('leader-specialty').value,
-    teamSize: document.getElementById('team-size').value,
-    anesthesia,
-    outcome: selectedOutcome,
-    roscDuration: document.getElementById('rosc-duration').value,
-    postRoscStatus: document.getElementById('post-rosc-status').value,
-    notes: document.getElementById('notes').value,
-  };
-
-  cases.unshift(c);
-  localStorage.setItem('cpr_cases_v2', JSON.stringify(cases));
-  showToast('✅ تم حفظ الحالة بنجاح');
-  resetForm();
-  updateCaseBadge();
-  updateStats();
-}
-
-function resetForm() {
-  const dateVal = document.getElementById('arrest-date').value;
-  document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]), select, textarea').forEach(el => {
-    if (el.id === 'arrest-date') return;
-    el.value = '';
-  });
-  document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(el => el.checked = false);
-  selectedOutcome = '';
-  document.querySelectorAll('.outcome-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('rosc-details').classList.add('hidden');
-  document.getElementById('arrest-date').value = new Date().toISOString().split('T')[0];
-}
-
-// ===== RENDER CASES =====
-function renderCases() {
-  const container = document.getElementById('cases-list');
-  if (cases.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="emoji">📂</div>
-        <h3>لا توجد حالات مسجلة بعد</h3>
-        <p>ابدأ بإدخال أول حالة إنعاش قلبي رئوي</p>
-      </div>`;
-    return;
-  }
-
-  container.innerHTML = cases.map(c => {
-    const outcomeClass = c.outcome === 'ROSC' ? 'badge-green' : c.outcome === 'وفاة' ? 'badge-red' : 'badge-yellow';
-    const outcomeEmoji = c.outcome === 'ROSC' ? '💚' : c.outcome === 'وفاة' ? '❌' : '🔄';
-    const d = new Date(c.ts);
-    const dateStr = d.toLocaleDateString('ar-SA', {year:'numeric',month:'short',day:'numeric'});
-    const timeStr = d.toLocaleTimeString('ar-SA', {hour:'2-digit',minute:'2-digit'});
-
-    return `
-    <div class="case-item">
-      <div class="case-header">
-        <span class="case-id">${c.id}</span>
-        <span class="case-date">${dateStr} — ${timeStr}</span>
-      </div>
-      <div style="font-size:14px;font-weight:700;margin-bottom:6px;">
-        ${c.gender} • ${c.age} سنة ${c.name ? '• ' + c.name : ''}
-      </div>
-      <div class="case-meta">
-        <span class="badge badge-blue">🏥 ${c.ward}</span>
-        <span class="badge ${outcomeClass}">${outcomeEmoji} ${c.outcome}</span>
-        ${c.cause ? `<span class="badge badge-gray">⚠️ ${c.cause}</span>` : ''}
-        ${c.firstRhythm ? `<span class="badge badge-gray">💓 ${c.firstRhythm}</span>` : ''}
-        ${c.cprDuration ? `<span class="badge badge-blue">⏱️ ${c.cprDuration} دقيقة</span>` : ''}
-        ${c.teamLeader ? `<span class="badge badge-gray">👨‍⚕️ ${c.teamLeader}</span>` : ''}
-      </div>
-      ${c.notes ? `<div style="margin-top:8px;font-size:12px;color:var(--text-muted);padding:8px;background:#f8fafc;border-radius:8px;">${c.notes}</div>` : ''}
-      <div class="case-actions">
-        <button class="btn-danger" onclick="confirmDelete('${c.id}')">🗑️ حذف</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ===== DELETE =====
-function confirmDelete(id) {
-  deleteTarget = id;
-  document.getElementById('modal-overlay').classList.remove('hidden');
-  document.getElementById('modal-confirm').onclick = () => {
-    cases = cases.filter(c => c.id !== deleteTarget);
-    localStorage.setItem('cpr_cases_v2', JSON.stringify(cases));
-    closeModal();
-    renderCases();
-    updateCaseBadge();
-    updateStats();
-    showToast('🗑️ تم حذف الحالة');
-  };
-}
-function closeModal() {
-  document.getElementById('modal-overlay').classList.add('hidden');
-  deleteTarget = null;
-}
-
-// ===== STATS =====
-function updateStats() {
-  const total = cases.length;
-  const rosc = cases.filter(c => c.outcome === 'ROSC').length;
-  const death = cases.filter(c => c.outcome === 'وفاة').length;
-  document.getElementById('stat-total').textContent = total;
-  document.getElementById('stat-rosc').textContent = rosc;
-  document.getElementById('stat-death').textContent = death;
-}
-
-function updateCaseBadge() {
-  document.getElementById('case-count-badge').textContent = cases.length;
-}
-
-// ===== REPORT =====
-function renderReport() {
-  const total = cases.length;
-  const rosc = cases.filter(c => c.outcome === 'ROSC').length;
-  const death = cases.filter(c => c.outcome === 'وفاة').length;
-  const transfer = cases.filter(c => c.outcome === 'تحويل').length;
-
-  document.getElementById('r-total').textContent = total;
-  document.getElementById('r-rosc-rate').textContent = total ? Math.round(rosc/total*100) + '%' : '0%';
-
-  const durations = cases.filter(c => c.cprDuration > 0).map(c => Number(c.cprDuration));
-  const avgDur = durations.length ? Math.round(durations.reduce((a,b)=>a+b,0)/durations.length) : null;
-  document.getElementById('r-avg-dur').textContent = avgDur ? avgDur + ' د' : '—';
-
-  // Donut
-  renderDonut(rosc, death, transfer, total);
-
-  // Causes
-  const causeCounts = {};
-  cases.forEach(c => { if (c.cause) causeCounts[c.cause] = (causeCounts[c.cause]||0)+1; });
-  const sortedCauses = Object.entries(causeCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
-  document.getElementById('causes-list').innerHTML = sortedCauses.map(([k,v]) =>
-    `<div style="display:flex;justify-content:space-between;margin-bottom:6px;padding:6px 8px;background:#f8fafc;border-radius:6px;">
-      <span>${k}</span>
-      <span style="font-weight:700;color:var(--primary);">${v}</span>
-    </div>`
-  ).join('') || '<div style="color:var(--text-muted);font-size:13px;">لا توجد بيانات كافية</div>';
-
-  // Ward chart
-  const wardCounts = {};
-  cases.forEach(c => { if (c.ward) wardCounts[c.ward] = (wardCounts[c.ward]||0)+1; });
-  renderBarChart(wardCounts);
-}
-
-function renderDonut(rosc, death, transfer, total) {
-  const c = 2 * Math.PI * 56; // circumference
-  const center = document.getElementById('donut-center-num');
-  center.textContent = total;
-
-  if (total === 0) {
-    document.getElementById('donut-rosc').setAttribute('stroke-dasharray', '0 ' + c);
-    document.getElementById('donut-death').setAttribute('stroke-dasharray', '0 ' + c);
-    document.getElementById('donut-transfer').setAttribute('stroke-dasharray', '0 ' + c);
-    document.getElementById('donut-legend').innerHTML = '<p style="color:var(--text-muted);font-size:13px;">لا توجد بيانات</p>';
-    return;
-  }
-
-  const roscLen = (rosc/total) * c;
-  const deathLen = (death/total) * c;
-  const transferLen = (transfer/total) * c;
-
-  // Stagger arcs
-  const roscArc = document.getElementById('donut-rosc');
-  const deathArc = document.getElementById('donut-death');
-  const transferArc = document.getElementById('donut-transfer');
-
-  roscArc.setAttribute('stroke-dasharray', `${roscLen} ${c - roscLen}`);
-  roscArc.setAttribute('transform', `rotate(-90 70 70)`);
-
-  deathArc.setAttribute('stroke-dasharray', `${deathLen} ${c - deathLen}`);
-  deathArc.setAttribute('transform', `rotate(${-90 + (rosc/total)*360} 70 70)`);
-
-  transferArc.setAttribute('stroke-dasharray', `${transferLen} ${c - transferLen}`);
-  transferArc.setAttribute('transform', `rotate(${-90 + ((rosc+death)/total)*360} 70 70)`);
-
-  document.getElementById('donut-legend').innerHTML = [
-    ['#16a34a', 'ROSC', rosc],
-    ['#dc2626', 'وفاة', death],
-    ['#d97706', 'تحويل', transfer],
-  ].map(([color,label,val]) => `
-    <div class="legend-item">
-      <div class="legend-dot" style="background:${color}"></div>
-      <span class="legend-text">${label}</span>
-      <span class="legend-val">${val} (${total ? Math.round(val/total*100) : 0}%)</span>
+  <!-- META -->
+  <div class="meta-strip">
+    <div class="field">
+      <label>المحافظة</label>
+      <input type="text" id="governorate" value="الإسكندرية" readonly>
     </div>
-  `).join('');
-}
+    <div class="field">
+      <label>المستشفى <span class="req">*</span></label>
+      <input type="text" id="hospital" placeholder="اسم المستشفى">
+    </div>
+    <div class="field">
+      <label>الشهر</label>
+      <select id="month">
+        <option value="">-- الشهر --</option>
+        <option>يناير</option><option>فبراير</option><option>مارس</option>
+        <option>أبريل</option><option>مايو</option><option>يونيو</option>
+        <option>يوليو</option><option>أغسطس</option><option>سبتمبر</option>
+        <option>أكتوبر</option><option>نوفمبر</option><option>ديسمبر</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>السنة</label>
+      <input type="number" id="year" placeholder="2025" min="2020" max="2030">
+    </div>
+  </div>
 
-function renderBarChart(wardCounts) {
-  const container = document.getElementById('ward-chart');
-  const entries = Object.entries(wardCounts).sort((a,b) => b[1]-a[1]).slice(0,8);
-  if (entries.length === 0) {
-    container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;margin:auto;">لا توجد بيانات</p>';
-    return;
-  }
-  const max = Math.max(...entries.map(e => e[1]));
-  const colors = ['#0369a1','#0284c7','#0ea5e9','#38bdf8','#7dd3fc','#bae6fd','#e0f2fe','#f0f9ff'];
-
-  container.innerHTML = entries.map(([ward, count], i) => {
-    const pct = (count / max) * 155;
-    const shortWard = ward.length > 8 ? ward.slice(0, 8) + '…' : ward;
-    return `
-    <div class="chart-bar-wrapper">
-      <div class="chart-bar" style="height:${pct}px;background:${colors[i % colors.length]};">
+  <!-- PATIENT -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">👤</div>
+      <div><div class="section-title">بيانات المريض</div><div class="section-subtitle">Patient Information</div></div>
+    </div>
+    <div class="section-body">
+      <div class="field full-width">
+        <label>اسم المريض الرباعي <span class="req">*</span></label>
+        <input type="text" id="patientName" placeholder="الاسم الرباعي كاملاً">
       </div>
-      <div class="chart-bar-value" style="bottom:${pct + 34}px;">${count}</div>
-      <div class="chart-bar-label">${shortWard}</div>
+      <div class="field">
+        <label>الرقم الطبي الموحد <span class="req">*</span></label>
+        <input type="text" id="medicalId" placeholder="رقم الملف الطبي">
+      </div>
+      <div class="field">
+        <label>تاريخ دخول المستشفى</label>
+        <input type="date" id="admissionDate">
+      </div>
+      <div class="field full-width">
+        <label>التشخيص</label>
+        <input type="text" id="diagnosis" placeholder="التشخيص الطبي">
+      </div>
+      <div class="field">
+        <label>القسم</label>
+        <input type="text" id="ward" placeholder="القسم / الجناح">
+      </div>
+    </div>
+  </div>
+
+  <!-- CODE BLUE RESPONSE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div><div class="section-title">الاستجابة لـ Code Blue</div><div class="section-subtitle">Code Blue Response</div></div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>تاريخ حدوث توقف القلب</label>
+        <input type="date" id="cardiacArrestDate">
+      </div>
+      <div class="field">
+        <label>المكان / القسم</label>
+        <input type="text" id="arrestLocation" placeholder="مكان حدوث الحالة">
+      </div>
+      <div class="field">
+        <label>وقت إعلان Code Blue</label>
+        <input type="time" id="codeBlueTime">
+      </div>
+      <div class="field">
+        <label>وقت بداية CPR</label>
+        <input type="time" id="cprStartTime">
+      </div>
+      <div class="field">
+        <label>وقت وصول فريق Code Blue كاملاً</label>
+        <input type="time" id="teamArrivalTime">
+      </div>
+      <div class="field">
+        <label>زمن الاستجابة للCode Blue <span class="auto-tag">محسوب تلقائياً</span></label>
+        <input type="text" id="responseTime" readonly placeholder="وقت الوصول − وقت الإعلان">
+      </div>
+    </div>
+  </div>
+
+  <!-- CPR QUALITY -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">💊</div>
+      <div><div class="section-title">جودة عملية الإفاقة القلبية التنفسية</div><div class="section-subtitle">CPR Quality Metrics</div></div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>عدد دورات CPR</label>
+        <input type="number" id="cprCycles" min="0" step="1" placeholder="عدد الدورات">
+      </div>
+      <!-- Col N: "0,1,NA" -->
+      <div class="field">
+        <label>استخدام الصدمات الكهربائية</label>
+        <div class="radio-group">
+          <input type="radio" name="defibrillation" id="defib0" value="0"><label for="defib0">0</label>
+          <input type="radio" name="defibrillation" id="defib1" value="1"><label for="defib1">1</label>
+          <input type="radio" name="defibrillation" id="defibNA" value="NA"><label for="defibNA">N/A</label>
+        </div>
+        <div class="field-note">0 = لا &nbsp;|&nbsp; 1 = نعم &nbsp;|&nbsp; N/A = لا ينطبق</div>
+      </div>
+      <div class="field">
+        <label>ساعة انتهاء CPR</label>
+        <input type="time" id="cprEndTime">
+      </div>
+      <div class="field">
+        <label>مدة الإنعاش الكلية <span class="auto-tag">محسوب تلقائياً</span></label>
+        <input type="text" id="totalDuration" readonly placeholder="انتهاء CPR − بداية CPR">
+      </div>
+      <!-- Col Q: نجاه / وفاة -->
+      <div class="field full-width">
+        <label>نتيجة الإنعاش النهائية (نجاة / وفاة)</label>
+        <div class="toggle-group">
+          <input type="radio" name="finalOutcome" id="fo_survived" value="نجاه"><label for="fo_survived">نجاة (ROSC)</label>
+          <input type="radio" name="finalOutcome" id="fo_died" value="وفاة"><label for="fo_died">وفاة</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOCUMENTATION -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">📋</div>
+      <div><div class="section-title">التوثيق</div><div class="section-subtitle">Documentation</div></div>
+    </div>
+    <div class="section-body">
+      <!-- Col R: "0,1" -->
+      <div class="field">
+        <label>يوجد نموذج توثيق CPR</label>
+        <div class="radio-group">
+          <input type="radio" name="hasCprForm" id="hcf0" value="0"><label for="hcf0">0</label>
+          <input type="radio" name="hasCprForm" id="hcf1" value="1"><label for="hcf1">1</label>
+        </div>
+        <div class="field-note">0 = لا &nbsp;|&nbsp; 1 = نعم</div>
+      </div>
+      <!-- Col S: "0,1" -->
+      <div class="field">
+        <label>نموذج التوثيق كامل البيانات</label>
+        <div class="radio-group">
+          <input type="radio" name="formComplete" id="fc0" value="0"><label for="fc0">0</label>
+          <input type="radio" name="formComplete" id="fc1" value="1"><label for="fc1">1</label>
+        </div>
+        <div class="field-note">0 = غير مكتمل &nbsp;|&nbsp; 1 = مكتمل</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISCHARGE & MORTALITY -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">🚪</div>
+      <div><div class="section-title">بيانات الخروج وحالات الوفاة بعد CPR</div><div class="section-subtitle">Discharge & Post-CPR Mortality</div></div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>تاريخ الخروج</label>
+        <input type="date" id="dischargeDate">
+      </div>
+      <!-- Col U: نجاه / وفاة -->
+      <div class="field">
+        <label>الحالة عند الخروج</label>
+        <div class="toggle-group">
+          <input type="radio" name="dischargeCondition" id="dc_alive" value="نجاه"><label for="dc_alive">نجاة</label>
+          <input type="radio" name="dischargeCondition" id="dc_died" value="وفاة"><label for="dc_died">وفاة</label>
+        </div>
+      </div>
+      <!-- Col V: "0,1,NA" -->
+      <div class="field">
+        <label>وفاة قبل 24 ساعة من CPR</label>
+        <div class="radio-group">
+          <input type="radio" name="deathBefore24h" id="db0" value="0"><label for="db0">0</label>
+          <input type="radio" name="deathBefore24h" id="db1" value="1"><label for="db1">1</label>
+          <input type="radio" name="deathBefore24h" id="dbNA" value="NA"><label for="dbNA">N/A</label>
+        </div>
+        <div class="field-note">0 = لا &nbsp;|&nbsp; 1 = نعم &nbsp;|&nbsp; N/A = لا ينطبق</div>
+      </div>
+      <!-- Col W: "0,1,NA" -->
+      <div class="field">
+        <label>وفاة بعد 24 ساعة من CPR</label>
+        <div class="radio-group">
+          <input type="radio" name="deathAfter24h" id="da0" value="0"><label for="da0">0</label>
+          <input type="radio" name="deathAfter24h" id="da1" value="1"><label for="da1">1</label>
+          <input type="radio" name="deathAfter24h" id="daNA" value="NA"><label for="daNA">N/A</label>
+        </div>
+        <div class="field-note">0 = لا &nbsp;|&nbsp; 1 = نعم &nbsp;|&nbsp; N/A = لا ينطبق</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions-grid">
+    <button class="btn btn-primary" onclick="addRecord()">＋ إضافة السجل</button>
+    <button class="btn btn-reset" onclick="resetForm()">↺ مسح النموذج</button>
+  </div>
+  <div class="divider"></div>
+
+  <!-- RECORDS -->
+  <div class="records-section">
+    <div class="records-header">
+      <div class="records-title">السجلات المضافة <span class="count-badge" id="recordCount">0</span></div>
+    </div>
+    <div id="recordsList">
+      <div class="empty-state"><div class="empty-icon">📂</div>لم يتم إضافة أي سجلات بعد</div>
+    </div>
+  </div>
+
+  <button class="btn btn-export" onclick="exportToExcel()">⬇ تصدير إلى Excel (.xlsx)</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let records = [];
+let serial = 1;
+
+function computeResponseTime() {
+  const t1 = document.getElementById('codeBlueTime').value;
+  const t2 = document.getElementById('teamArrivalTime').value;
+  if (t1 && t2) {
+    const [h1,m1]=t1.split(':').map(Number), [h2,m2]=t2.split(':').map(Number);
+    let d=(h2*60+m2)-(h1*60+m1); if(d<0)d+=1440;
+    document.getElementById('responseTime').value = d + ' دقيقة';
+  } else document.getElementById('responseTime').value='';
+}
+function computeTotalDuration() {
+  const t1 = document.getElementById('cprStartTime').value;
+  const t2 = document.getElementById('cprEndTime').value;
+  if (t1 && t2) {
+    const [h1,m1]=t1.split(':').map(Number), [h2,m2]=t2.split(':').map(Number);
+    let d=(h2*60+m2)-(h1*60+m1); if(d<0)d+=1440;
+    document.getElementById('totalDuration').value = d + ' دقيقة';
+  } else document.getElementById('totalDuration').value='';
+}
+document.getElementById('codeBlueTime').addEventListener('change', computeResponseTime);
+document.getElementById('teamArrivalTime').addEventListener('change', computeResponseTime);
+document.getElementById('cprStartTime').addEventListener('change', computeTotalDuration);
+document.getElementById('cprEndTime').addEventListener('change', computeTotalDuration);
+
+const watchFields = ['hospital','month','year','patientName','medicalId','admissionDate',
+  'diagnosis','ward','cardiacArrestDate','arrestLocation','codeBlueTime','cprStartTime',
+  'teamArrivalTime','cprCycles','cprEndTime','dischargeDate'];
+watchFields.forEach(id => { const el=document.getElementById(id); if(el) el.addEventListener('input', updateProgress); });
+document.querySelectorAll('input[type=radio]').forEach(r => r.addEventListener('change', updateProgress));
+
+function updateProgress() {
+  const tf = watchFields.filter(id => { const el=document.getElementById(id); return el&&el.value.trim()!=''; }).length;
+  const rg = ['defibrillation','hasCprForm','formComplete','finalOutcome','dischargeCondition','deathBefore24h','deathAfter24h'];
+  const rf = rg.filter(n => document.querySelector(`input[name="${n}"]:checked`)).length;
+  document.getElementById('progressFill').style.width = Math.round(((tf+rf)/(watchFields.length+rg.length))*100)+'%';
+}
+
+const gv = id => { const e=document.getElementById(id); return e?e.value.trim():''; };
+const gr = name => { const e=document.querySelector(`input[name="${name}"]:checked`); return e?e.value:''; };
+
+function addRecord() {
+  if (!gv('patientName')) { showToast('⚠ يرجى إدخال اسم المريض', 'error'); return; }
+  if (!gv('medicalId')) { showToast('⚠ يرجى إدخال الرقم الطبي الموحد', 'error'); return; }
+  records.push({
+    serial: serial++,
+    governorate: gv('governorate'), hospital: gv('hospital'), month: gv('month'), year: gv('year'),
+    patientName: gv('patientName'), medicalId: gv('medicalId'), admissionDate: gv('admissionDate'),
+    diagnosis: gv('diagnosis'), ward: gv('ward'), cardiacArrestDate: gv('cardiacArrestDate'),
+    arrestLocation: gv('arrestLocation'), codeBlueTime: gv('codeBlueTime'), cprStartTime: gv('cprStartTime'),
+    teamArrivalTime: gv('teamArrivalTime'), responseTime: gv('responseTime'),
+    cprCycles: gv('cprCycles'), defibrillation: gr('defibrillation'),
+    cprEndTime: gv('cprEndTime'), totalDuration: gv('totalDuration'),
+    finalOutcome: gr('finalOutcome'), hasCprForm: gr('hasCprForm'), formComplete: gr('formComplete'),
+    dischargeDate: gv('dischargeDate'), dischargeCondition: gr('dischargeCondition'),
+    deathBefore24h: gr('deathBefore24h'), deathAfter24h: gr('deathAfter24h'),
+  });
+  renderRecords();
+  showToast('✓ تم إضافة السجل بنجاح', 'success');
+  resetForm(true);
+}
+
+function deleteRecord(i) { records.splice(i,1); renderRecords(); showToast('تم حذف السجل','error'); }
+
+function renderRecords() {
+  document.getElementById('recordCount').textContent = records.length;
+  const list = document.getElementById('recordsList');
+  if (!records.length) { list.innerHTML='<div class="empty-state"><div class="empty-icon">📂</div>لم يتم إضافة أي سجلات بعد</div>'; return; }
+  list.innerHTML = '<div class="records-list">' + records.map((r,i)=>{
+    const oc = r.finalOutcome==='نجاه'?'o-survived':r.finalOutcome==='وفاة'?'o-died':'o-unknown';
+    const ol = r.finalOutcome==='نجاه'?'نجاة':r.finalOutcome==='وفاة'?'وفاة':'—';
+    return `<div class="record-item">
+      <div class="record-num">${r.serial}</div>
+      <div class="record-info">
+        <div class="record-name">${r.patientName}</div>
+        <div class="record-meta">رقم طبي: ${r.medicalId} | ${r.ward||'—'} | ${r.cardiacArrestDate||'—'}</div>
+      </div>
+      <span class="outcome-pill ${oc}">${ol}</span>
+      <button class="record-del" onclick="deleteRecord(${i})">✕</button>
     </div>`;
-  }).join('');
+  }).join('')+'</div>';
 }
 
-// ===== EXPORT CSV =====
-function exportCSV() {
-  if (cases.length === 0) { showToast('⚠️ لا توجد حالات للتصدير', true); return; }
-  const headers = ['رقم الحالة','التاريخ','رقم الملف','الاسم','العمر','الجنس','القسم','تاريخ التوقف','وقت التوقف','مدة الإنعاش','الإيقاع الأول','السبب','الأدوية','الإجراءات','النتيجة','قائد الإنعاش','ملاحظات'];
-  const rows = cases.map(c => [
-    c.id, c.ts.split('T')[0], c.mrn, c.name, c.age, c.gender, c.ward,
-    c.arrestDate, c.arrestTime, c.cprDuration, c.firstRhythm, c.cause,
-    c.drugs, c.procedures, c.outcome, c.teamLeader, c.notes
-  ].map(v => `"${(v||'').toString().replace(/"/g,'""')}"`));
-
-  const csv = '\uFEFF' + [headers, ...rows].map(r => r.join(',')).join('\n');
-  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `CPR_data_${new Date().toISOString().split('T')[0]}.csv`;
-  a.click();
-  showToast('📥 تم تصدير الملف بنجاح');
+function resetForm(keepMeta=false) {
+  ['patientName','medicalId','admissionDate','diagnosis','ward','cardiacArrestDate',
+   'arrestLocation','codeBlueTime','cprStartTime','teamArrivalTime','responseTime',
+   'cprCycles','cprEndTime','totalDuration','dischargeDate'].forEach(id=>{
+    const el=document.getElementById(id); if(el&&!el.readOnly) el.value='';
+  });
+  if (!keepMeta) { ['hospital','month','year'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; }); }
+  document.querySelectorAll('input[type=radio]').forEach(r=>r.checked=false);
+  updateProgress();
 }
 
-// ===== TOAST =====
-function showToast(msg, isError = false) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast' + (isError ? ' error' : '');
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
+function exportToExcel() {
+  if (!records.length) { showToast('⚠ لا توجد سجلات للتصدير','error'); return; }
+  const wb = XLSX.utils.book_new();
+  const rows = [];
+  const r1 = Array(23).fill('');
+  r1[1]='المحافظة :  الإسكندرية '; r1[4]='المستشفى :'; r1[5]=records[0].hospital||'';
+  r1[6]='شهر : '; r1[7]=records[0].month||''; r1[8]='سنه:'; r1[9]=records[0].year||'';
+  rows.push(r1);
+  rows.push(['م','بيانات المريض','','','بيانات الدخول','','الاستجابة للCode Blue','','','','','',
+    'جودة عملية الافاقة القلبية التنفسية','','','','','التوثيق','','بيانات الخروج','',
+    'حالات الوفاة بعد CPR','']);
+  rows.push(['م','اسم المريض الرباعي ','الرقم الطبي الموحد','تاريخ دخول المستشفى','التشخيص','القسم ',
+    'تاريخ حدوث توقف القلب','المكان/ القسم','وقت اعلان Code Blue','وقت بداية CPR',
+    'وقت وصول فريق الCode Blue كاملا','زمن الاستجابة للCode Blue','عدد دورات CPR',
+    'استخدام الصدمات الكهربائية','ساعة انتهاء CPR','مدة الانعاش الكلية',
+    'نتيجة الانعاش النهائية (نجاة / وفاة)','يوجد نموذج توثيق CPR',
+    'نموذج التوثيق كامل البيانات ','تاريخ الخروج','الحالة عند الخروج',
+    'وفاة قبل 24 ساعة من CPR ','وفاة بعد 24 ساعة من CPR']);
+  records.forEach((r,i)=>{
+    rows.push([i+1,r.patientName,r.medicalId,r.admissionDate,r.diagnosis,r.ward,
+      r.cardiacArrestDate,r.arrestLocation,r.codeBlueTime,r.cprStartTime,
+      r.teamArrivalTime,r.responseTime,r.cprCycles!==''?Number(r.cprCycles):'',
+      r.defibrillation,r.cprEndTime,r.totalDuration,r.finalOutcome,
+      r.hasCprForm,r.formComplete,r.dischargeDate,r.dischargeCondition,
+      r.deathBefore24h,r.deathAfter24h]);
+  });
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:5},{wch:26},{wch:18},{wch:18},{wch:22},{wch:14},{wch:20},{wch:16},
+    {wch:18},{wch:16},{wch:24},{wch:20},{wch:14},{wch:18},{wch:16},{wch:18},{wch:24},
+    {wch:20},{wch:24},{wch:16},{wch:18},{wch:24},{wch:24}];
+  XLSX.utils.book_append_sheet(wb,ws,'Sheet1');
+  XLSX.writeFile(wb,`Code_Blue_CPR_${records[0].hospital||'مستشفى'}_${records[0].month||''}_${records[0].year||''}.xlsx`);
+  showToast(`✓ تم تصدير ${records.length} سجل بنجاح`,'success');
+}
+
+function showToast(msg,type='success') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),3000);
 }
 </script>
 </body>
