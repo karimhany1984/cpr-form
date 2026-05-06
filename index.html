@@ -2,31 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>نموذج توثيق CPR</title>
-
-<!-- PWA Manifest -->
-<link rel="manifest" href="manifest.json">
-
-<!-- PWA Theme -->
-<meta name="theme-color" content="#0a0a0a">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="application-name" content="إنعاش قلبي CPR">
-
-<!-- iOS PWA Support -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CPR نموذج">
-
-<!-- iOS icons (inline SVG data URIs) -->
-<link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%23018a46' width='180' height='180' rx='40'/><text x='90' y='125' font-size='100' text-anchor='middle' font-family='system-ui'>❤️</text></svg>">
-
-<!-- iOS splash screens (portrait) -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-
-<!-- Description / SEO -->
-<meta name="description" content="نظام توثيق حالات الإنعاش القلبي الرئوي — يعمل بدون إنترنت">
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -52,73 +29,6 @@
     --readonly-bg: #fef9e7;
     --readonly-border: #d4a017;
     --readonly-text: #92400e;
-  }
-
-  /* ── PWA Install Prompt ── */
-  #pwa-install-bar {
-    display: none;
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 9999;
-    background: linear-gradient(135deg, #0a2010 0%, #0f3d18 50%, #1a5c28 100%);
-    border-top: 1px solid rgba(100,255,150,0.25);
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.45);
-    padding: 14px 18px;
-    align-items: center;
-    gap: 12px;
-    font-family: 'Cairo', sans-serif;
-    color: #fff;
-  }
-  #pwa-install-bar.visible { display: flex; }
-  #pwa-install-bar .pwa-icon { font-size: 28px; flex-shrink: 0; }
-  #pwa-install-bar .pwa-text { flex: 1; }
-  #pwa-install-bar .pwa-text strong { display: block; font-size: 13.5px; font-weight: 700; }
-  #pwa-install-bar .pwa-text span { font-size: 11.5px; color: rgba(255,255,255,0.7); font-family: 'Tajawal', sans-serif; }
-  #pwa-install-btn {
-    background: #fff;
-    color: #0f3d18;
-    border: none;
-    border-radius: 8px;
-    padding: 9px 18px;
-    font-family: 'Cairo', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    transition: transform 0.1s;
-  }
-  #pwa-install-btn:active { transform: scale(0.96); }
-  #pwa-dismiss-btn {
-    background: none; border: none; color: rgba(255,255,255,0.55);
-    font-size: 20px; cursor: pointer; padding: 4px; flex-shrink: 0; line-height: 1;
-  }
-
-  /* iOS manual install hint */
-  #ios-install-hint {
-    display: none;
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 9999;
-    background: linear-gradient(135deg, #0a2010 0%, #0f3d18 50%, #1a5c28 100%);
-    border-top: 1px solid rgba(100,255,150,0.25);
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.45);
-    padding: 16px 18px;
-    flex-direction: column;
-    gap: 10px;
-    font-family: 'Cairo', sans-serif;
-    color: #fff;
-    text-align: center;
-  }
-  #ios-install-hint.visible { display: flex; }
-  #ios-install-hint .ios-title { font-size: 14px; font-weight: 700; }
-  #ios-install-hint .ios-steps { font-size: 12px; color: rgba(255,255,255,0.8); font-family: 'Tajawal', sans-serif; line-height: 1.9; }
-  #ios-install-hint .ios-steps b { color: #7fffaa; }
-  #ios-close-btn {
-    align-self: center;
-    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
-    color: #fff; border-radius: 7px; padding: 7px 24px;
-    font-family: 'Cairo', sans-serif; font-size: 13px; cursor: pointer;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -446,6 +356,19 @@
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.success { border-color: #86efac; color: #15803d; background: #f0fdf4; }
   .toast.error { border-color: #fca5a5; color: #dc2626; background: #fff8f8; }
+
+  /* Locked N/A fields when dischargeCondition = نجاة */
+  .field.na-locked { opacity: 0.52; pointer-events: none; }
+  .field.na-locked .radio-group label { background: #f1f5f9; color: #94a3b8; border-color: #e2e8f0; }
+  .field.na-locked .radio-group input[type=radio]:checked + label {
+    background: #e2e8f0; color: #64748b; border-color: #cbd5e1;
+  }
+  .na-auto-note {
+    font-size: 10.5px; color: #0369a1; font-family: 'Tajawal', sans-serif;
+    background: #e0f2fe; border: 1px solid #bae6fd;
+    border-radius: 5px; padding: 3px 8px; margin-top: 2px; display: none;
+  }
+  .field.na-locked .na-auto-note { display: block; }
 </style>
 </head>
 <body>
@@ -472,8 +395,25 @@
     </div>
     <div class="field">
       <label>المستشفى <span class="req">*</span></label>
-      <input type="text" id="hospital" placeholder="اسم المستشفى" oninput="validateArabic(this, 'hospital-msg')">
-        <div class="validation-msg" id="hospital-msg"></div>
+      <select id="hospital" required>
+        <option value="">-- اختر المستشفى --</option>
+        <option>مستشفى أطفال الرمل</option>
+        <option>مستشفى ابو قير</option>
+        <option>مستشفى اطفال الانفوشى</option>
+        <option>مستشفى اطفال فوزى معاذ</option>
+        <option>مستشفى الجمهورية العام</option>
+        <option>مستشفى الرمد العام</option>
+        <option>مستشفى العامريه العام</option>
+        <option>مستشفى برج العرب</option>
+        <option>مستشفى جمال حماد</option>
+        <option>مستشفى حميات اسكندريه</option>
+        <option>مستشفى دار اسماعيل للنساء والتوليد</option>
+        <option>مستشفى رأس التين العام</option>
+        <option>مستشفى صدر المعموره</option>
+        <option>مستشفى صدر كوم الشقافة</option>
+        <option>مستشفى صلاح العوضى للنساء والتوليد</option>
+      </select>
+      <div class="validation-msg" id="hospital-msg"></div>
     </div>
     <div class="field">
       <label>الشهر</label>
@@ -500,26 +440,26 @@
     <div class="section-body">
       <div class="field full-width">
         <label>اسم المريض الرباعي <span class="req">*</span></label>
-        <input type="text" id="patientName" placeholder="الاسم الرباعي كاملاً" oninput="validatePatientName(this)">
+        <input type="text" id="patientName" placeholder="الاسم الرباعي كاملاً" required oninput="validatePatientName(this)">
         <div class="validation-msg" id="patientName-msg"></div>
       </div>
       <div class="field">
         <label>الرقم الطبي الموحد <span class="req">*</span></label>
-        <input type="text" id="medicalId" placeholder="رقم الملف الطبي" oninput="validateMedicalId(this)">
+        <input type="text" id="medicalId" placeholder="رقم الملف الطبي" required oninput="validateMedicalId(this)">
         <div class="validation-msg" id="medicalId-msg"></div>
       </div>
       <div class="field">
-        <label>تاريخ دخول المستشفى</label>
-        <input type="date" id="admissionDate" onchange="validateDate(this)">
+        <label>تاريخ دخول المستشفى <span class="req">*</span></label>
+        <input type="date" id="admissionDate" required onchange="validateDate(this)">
         <div class="validation-msg" id="admissionDate-msg"></div>
       </div>
       <div class="field full-width">
-        <label>التشخيص</label>
-        <input type="text" id="diagnosis" placeholder="التشخيص الطبي">
+        <label>التشخيص <span class="req">*</span></label>
+        <input type="text" id="diagnosis" placeholder="التشخيص الطبي" required>
       </div>
       <div class="field">
-        <label>القسم</label>
-        <input type="text" id="ward" placeholder="القسم / الجناح" oninput="validateArabic(this, 'ward-msg')">
+        <label>القسم <span class="req">*</span></label>
+        <input type="text" id="ward" placeholder="القسم / الجناح" required oninput="validateArabic(this, 'ward-msg')">
         <div class="validation-msg" id="ward-msg"></div>
       </div>
     </div>
@@ -533,25 +473,25 @@
     </div>
     <div class="section-body">
       <div class="field">
-        <label>تاريخ حدوث توقف القلب</label>
-        <input type="date" id="cardiacArrestDate">
+        <label>تاريخ حدوث توقف القلب <span class="req">*</span></label>
+        <input type="date" id="cardiacArrestDate" required>
       </div>
       <div class="field">
-        <label>المكان / القسم</label>
-        <input type="text" id="arrestLocation" placeholder="مكان حدوث الحالة" oninput="validateArabic(this, 'arrestLocation-msg')">
+        <label>المكان / القسم <span class="req">*</span></label>
+        <input type="text" id="arrestLocation" placeholder="مكان حدوث الحالة" required oninput="validateArabic(this, 'arrestLocation-msg')">
         <div class="validation-msg" id="arrestLocation-msg"></div>
       </div>
       <div class="field">
-        <label>وقت إعلان Code Blue</label>
-        <input type="time" id="codeBlueTime">
+        <label>وقت إعلان Code Blue <span class="req">*</span></label>
+        <input type="time" id="codeBlueTime" required>
       </div>
       <div class="field">
-        <label>وقت بداية CPR</label>
-        <input type="time" id="cprStartTime">
+        <label>وقت بداية CPR <span class="req">*</span></label>
+        <input type="time" id="cprStartTime" required>
       </div>
       <div class="field">
-        <label>وقت وصول فريق Code Blue كاملاً</label>
-        <input type="time" id="teamArrivalTime">
+        <label>وقت وصول فريق Code Blue كاملاً <span class="req">*</span></label>
+        <input type="time" id="teamArrivalTime" required>
       </div>
       <div class="field">
         <label>زمن الاستجابة للCode Blue <span class="auto-tag">محسوب تلقائياً</span></label>
@@ -568,12 +508,12 @@
     </div>
     <div class="section-body">
       <div class="field">
-        <label>عدد دورات CPR</label>
-        <input type="number" id="cprCycles" min="0" step="1" placeholder="عدد الدورات">
+        <label>عدد دورات CPR <span class="req">*</span></label>
+        <input type="number" id="cprCycles" min="0" step="1" placeholder="عدد الدورات" required>
       </div>
       <!-- Col N: "0,1,NA" -->
       <div class="field">
-        <label>استخدام الصدمات الكهربائية</label>
+        <label>استخدام الصدمات الكهربائية <span class="req">*</span></label>
         <div class="radio-group">
           <input type="radio" name="defibrillation" id="defib0" value="0"><label for="defib0">0</label>
           <input type="radio" name="defibrillation" id="defib1" value="1"><label for="defib1">1</label>
@@ -582,8 +522,8 @@
         <div class="field-note">0 = لا &nbsp;|&nbsp; 1 = نعم &nbsp;|&nbsp; N/A = لا ينطبق</div>
       </div>
       <div class="field">
-        <label>ساعة انتهاء CPR</label>
-        <input type="time" id="cprEndTime">
+        <label>ساعة انتهاء CPR <span class="req">*</span></label>
+        <input type="time" id="cprEndTime" required>
       </div>
       <div class="field">
         <label>مدة الإنعاش الكلية <span class="auto-tag">محسوب تلقائياً</span></label>
@@ -591,10 +531,10 @@
       </div>
       <!-- Col Q: نجاه / وفاة -->
       <div class="field full-width">
-        <label>نتيجة الإنعاش النهائية (نجاة / وفاة)</label>
+        <label>نتيجة الإنعاش النهائية (نجاة / وفاة) <span class="req">*</span></label>
         <div class="toggle-group">
-          <input type="radio" name="finalOutcome" id="fo_survived" value="نجاه"><label for="fo_survived">نجاة (ROSC)</label>
-          <input type="radio" name="finalOutcome" id="fo_died" value="وفاة"><label for="fo_died">وفاة</label>
+          <input type="radio" name="finalOutcome" id="fo_survived" value="نجاه" onchange="handleFinalOutcome()"><label for="fo_survived">نجاة (ROSC)</label>
+          <input type="radio" name="finalOutcome" id="fo_died" value="وفاة" onchange="handleFinalOutcome()"><label for="fo_died">وفاة</label>
         </div>
       </div>
     </div>
@@ -609,7 +549,7 @@
     <div class="section-body">
       <!-- Col R: "0,1" -->
       <div class="field">
-        <label>يوجد نموذج توثيق CPR</label>
+        <label>يوجد نموذج توثيق CPR <span class="req">*</span></label>
         <div class="radio-group">
           <input type="radio" name="hasCprForm" id="hcf0" value="0"><label for="hcf0">0</label>
           <input type="radio" name="hasCprForm" id="hcf1" value="1"><label for="hcf1">1</label>
@@ -618,7 +558,7 @@
       </div>
       <!-- Col S: "0,1" -->
       <div class="field">
-        <label>نموذج التوثيق كامل البيانات</label>
+        <label>نموذج التوثيق كامل البيانات <span class="req">*</span></label>
         <div class="radio-group">
           <input type="radio" name="formComplete" id="fc0" value="0"><label for="fc0">0</label>
           <input type="radio" name="formComplete" id="fc1" value="1"><label for="fc1">1</label>
@@ -636,36 +576,38 @@
     </div>
     <div class="section-body">
       <div class="field">
-        <label>تاريخ الخروج</label>
-        <input type="date" id="dischargeDate">
+        <label>تاريخ الخروج <span class="req">*</span></label>
+        <input type="date" id="dischargeDate" required>
       </div>
       <!-- Col U: نجاه / وفاة -->
       <div class="field">
-        <label>الحالة عند الخروج</label>
+        <label>الحالة عند الخروج <span class="req">*</span></label>
         <div class="toggle-group">
-          <input type="radio" name="dischargeCondition" id="dc_alive" value="نجاه"><label for="dc_alive">نجاة</label>
-          <input type="radio" name="dischargeCondition" id="dc_died" value="وفاة"><label for="dc_died">وفاة</label>
+          <input type="radio" name="dischargeCondition" id="dc_alive" value="نجاه" onchange="handleDischargeCondition()"><label for="dc_alive">نجاة</label>
+          <input type="radio" name="dischargeCondition" id="dc_died" value="وفاة" onchange="handleDischargeCondition()"><label for="dc_died">وفاة</label>
         </div>
       </div>
       <!-- Col V: "0,1,NA" -->
-      <div class="field">
-        <label>وفاة قبل 24 ساعة من CPR</label>
-        <div class="radio-group">
+      <div class="field" id="deathBefore24h-field">
+        <label>وفاة قبل 24 ساعة من CPR <span class="req">*</span></label>
+        <div class="radio-group" id="deathBefore24h-group">
           <input type="radio" name="deathBefore24h" id="db0" value="0"><label for="db0">0</label>
           <input type="radio" name="deathBefore24h" id="db1" value="1"><label for="db1">1</label>
           <input type="radio" name="deathBefore24h" id="dbNA" value="NA"><label for="dbNA">N/A</label>
         </div>
         <div class="field-note">0 = لا &nbsp;|&nbsp; 1 = نعم &nbsp;|&nbsp; N/A = لا ينطبق</div>
+        <div class="na-auto-note">مُعيَّن تلقائياً N/A — الحالة نجاة عند الخروج</div>
       </div>
       <!-- Col W: "0,1,NA" -->
-      <div class="field">
-        <label>وفاة بعد 24 ساعة من CPR</label>
-        <div class="radio-group">
+      <div class="field" id="deathAfter24h-field">
+        <label>وفاة بعد 24 ساعة من CPR <span class="req">*</span></label>
+        <div class="radio-group" id="deathAfter24h-group">
           <input type="radio" name="deathAfter24h" id="da0" value="0"><label for="da0">0</label>
           <input type="radio" name="deathAfter24h" id="da1" value="1"><label for="da1">1</label>
           <input type="radio" name="deathAfter24h" id="daNA" value="NA"><label for="daNA">N/A</label>
         </div>
         <div class="field-note">0 = لا &nbsp;|&nbsp; 1 = نعم &nbsp;|&nbsp; N/A = لا ينطبق</div>
+        <div class="na-auto-note">مُعيَّن تلقائياً N/A — الحالة نجاة عند الخروج</div>
       </div>
     </div>
   </div>
@@ -696,8 +638,43 @@
 let records = [];
 let serial = 1;
 
-// ── Validation helpers ──────────────────────────────────────────────────────
-const ARABIC_ONLY = /^[\u0600-\u06FF\s]+$/;
+// ── Time calculations ───────────────────────────────────────────────────────
+function computeResponseTime() {
+  const t1 = document.getElementById('codeBlueTime').value;
+  const t2 = document.getElementById('teamArrivalTime').value;
+  if (t1 && t2) {
+    const [h1,m1]=t1.split(':').map(Number), [h2,m2]=t2.split(':').map(Number);
+    let d=(h2*60+m2)-(h1*60+m1); if(d<0)d+=1440;
+    document.getElementById('responseTime').value = d + ' دقيقة';
+  } else document.getElementById('responseTime').value='';
+}
+function computeTotalDuration() {
+  const t1 = document.getElementById('cprStartTime').value;
+  const t2 = document.getElementById('cprEndTime').value;
+  if (t1 && t2) {
+    const [h1,m1]=t1.split(':').map(Number), [h2,m2]=t2.split(':').map(Number);
+    let d=(h2*60+m2)-(h1*60+m1); if(d<0)d+=1440;
+    document.getElementById('totalDuration').value = d + ' دقيقة';
+  } else document.getElementById('totalDuration').value='';
+}
+document.getElementById('codeBlueTime').addEventListener('change', computeResponseTime);
+document.getElementById('teamArrivalTime').addEventListener('change', computeResponseTime);
+document.getElementById('cprStartTime').addEventListener('change', computeTotalDuration);
+document.getElementById('cprEndTime').addEventListener('change', computeTotalDuration);
+
+// Set max date = today for ALL date fields
+(function() {
+  const today = new Date();
+  const localToday = today.getFullYear() + '-' +
+    String(today.getMonth()+1).padStart(2,'0') + '-' +
+    String(today.getDate()).padStart(2,'0');
+  ['admissionDate','cardiacArrestDate','dischargeDate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('max', localToday);
+  });
+})();
+
+const ARABIC_ONLY = /^[\u0600-\u06FF\s\d\(\)\-\/,،.]+$/;
 const EN_ALPHANUM  = /^[A-Za-z0-9\/\-]+$/;
 
 function validatePatientName(el) {
@@ -728,13 +705,15 @@ function validateDate(el) {
   const v = el.value;
   const msgId = el.id + '-msg';
   const msg = document.getElementById(msgId);
-  if (!v) { clearState(el, msg); return true; }
-  const today = new Date(); today.setHours(0,0,0,0);
-  const selected = new Date(v);
-  if (selected > today) {
-    setInvalid(el, msg, 'لا يمكن اختيار تاريخ مستقبلي'); return false;
+  if (!v) { if(msg) clearState(el, msg); return false; }
+  const now = new Date();
+  const localToday = now.getFullYear() + '-' +
+    String(now.getMonth()+1).padStart(2,'0') + '-' +
+    String(now.getDate()).padStart(2,'0');
+  if (v > localToday) {
+    if(msg) setInvalid(el, msg, 'لا يمكن اختيار تاريخ مستقبلي'); return false;
   }
-  setValid(el, msg); return true;
+  if(msg) setValid(el, msg); return true;
 }
 
 function validateArabic(el, msgId) {
@@ -750,6 +729,46 @@ function validateArabic(el, msgId) {
 function setInvalid(el, msg, text) { el.classList.add('invalid'); el.classList.remove('valid'); if(msg) msg.textContent = text; }
 function setValid(el, msg) { el.classList.remove('invalid'); el.classList.add('valid'); if(msg) msg.textContent = ''; }
 function clearState(el, msg) { el.classList.remove('invalid','valid'); if(msg) msg.textContent = ''; }
+
+// ── Final Outcome → auto-set discharge condition ────────────────────────────
+function handleFinalOutcome() {
+  const val = document.querySelector('input[name="finalOutcome"]:checked')?.value;
+  if (val === 'وفاة') {
+    // Auto-set discharge condition to وفاة and trigger its logic
+    document.getElementById('dc_died').checked = true;
+    handleDischargeCondition();
+  } else if (val === 'نجاه') {
+    // If switching back to نجاة, clear discharge condition so user can re-choose
+    document.querySelectorAll('input[name="dischargeCondition"]').forEach(r => r.checked = false);
+    handleDischargeCondition();
+  }
+  updateProgress();
+}
+
+// ── Discharge Condition → auto-lock death fields ────────────────────────────
+function handleDischargeCondition() {
+  const val = document.querySelector('input[name="dischargeCondition"]:checked')?.value;
+  const fieldBefore = document.getElementById('deathBefore24h-field');
+  const fieldAfter  = document.getElementById('deathAfter24h-field');
+
+  if (val === 'نجاه') {
+    // Lock both fields and force-select N/A
+    [fieldBefore, fieldAfter].forEach(f => f.classList.add('na-locked'));
+    document.getElementById('dbNA').checked = true;
+    document.getElementById('daNA').checked = true;
+  } else {
+    // Unlock and clear N/A selection if it was auto-set
+    [fieldBefore, fieldAfter].forEach(f => f.classList.remove('na-locked'));
+    // Only clear if the NA was auto-selected (not user-chosen when condition was وفاة)
+    if (val === 'وفاة') {
+      ['dbNA','daNA'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el.checked) el.checked = false;
+      });
+    }
+  }
+  updateProgress();
+}
 
 // ── Time calculations ───────────────────────────────────────────────────────
 function computeResponseTime() {
@@ -775,17 +794,12 @@ document.getElementById('teamArrivalTime').addEventListener('change', computeRes
 document.getElementById('cprStartTime').addEventListener('change', computeTotalDuration);
 document.getElementById('cprEndTime').addEventListener('change', computeTotalDuration);
 
-// Set max date = today for admission date
-(function() {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('admissionDate').setAttribute('max', today);
-})();
-
 const watchFields = ['hospital','month','year','patientName','medicalId','admissionDate',
   'diagnosis','ward','cardiacArrestDate','arrestLocation','codeBlueTime','cprStartTime',
   'teamArrivalTime','cprCycles','cprEndTime','dischargeDate'];
 watchFields.forEach(id => { const el=document.getElementById(id); if(el) el.addEventListener('input', updateProgress); });
 document.querySelectorAll('input[type=radio]').forEach(r => r.addEventListener('change', updateProgress));
+document.getElementById('hospital').addEventListener('change', updateProgress);
 
 function updateProgress() {
   const tf = watchFields.filter(id => { const el=document.getElementById(id); return el&&el.value.trim()!=''; }).length;
@@ -798,34 +812,65 @@ const gv = id => { const e=document.getElementById(id); return e?e.value.trim():
 const gr = name => { const e=document.querySelector(`input[name="${name}"]:checked`); return e?e.value:''; };
 
 function addRecord() {
-  // Validate hospital name (Arabic only)
-  const hospEl = document.getElementById('hospital');
-  if (hospEl.value && !validateArabic(hospEl, 'hospital-msg')) {
-    showToast('⚠ اسم المستشفى يقبل الحروف العربية فقط', 'error'); return;
-  }
-  // Validate required Arabic name (4 words)
+  let errors = [];
+
+  // Required: المستشفى
+  if (!gv('hospital')) errors.push('المستشفى');
+  // Required: الشهر
+  if (!gv('month')) errors.push('الشهر');
+  // Required: السنة
+  if (!gv('year')) errors.push('السنة');
+
+  // Required: patient name (4 Arabic words)
   const nameEl = document.getElementById('patientName');
-  if (!validatePatientName(nameEl)) {
-    showToast('⚠ يرجى إدخال الاسم الرباعي بالعربي (4 كلمات على الأقل)', 'error'); return;
-  }
-  // Validate medical ID (English/numbers only)
+  if (!validatePatientName(nameEl)) errors.push('اسم المريض الرباعي');
+
+  // Required: medical ID
   const midEl = document.getElementById('medicalId');
-  if (!validateMedicalId(midEl)) {
-    showToast('⚠ الرقم الطبي يُقبل الأرقام والحروف الإنجليزية فقط', 'error'); return;
-  }
-  // Validate admission date
-  const adEl = document.getElementById('admissionDate');
-  if (adEl.value && !validateDate(adEl)) {
-    showToast('⚠ تاريخ دخول المستشفى لا يمكن أن يكون في المستقبل', 'error'); return;
-  }
-  // Validate Arabic-only fields
+  if (!validateMedicalId(midEl)) errors.push('الرقم الطبي');
+
+  // Required dates (today or before)
+  ['admissionDate','cardiacArrestDate','dischargeDate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el.value) { errors.push(el.id === 'admissionDate' ? 'تاريخ دخول المستشفى' : el.id === 'cardiacArrestDate' ? 'تاريخ توقف القلب' : 'تاريخ الخروج'); }
+    else if (!validateDate(el)) { errors.push('تاريخ (لا يمكن أن يكون في المستقبل)'); }
+  });
+
+  // Required text fields
+  if (!gv('diagnosis')) errors.push('التشخيص');
   const wardEl = document.getElementById('ward');
-  if (wardEl.value && !validateArabic(wardEl, 'ward-msg')) {
-    showToast('⚠ حقل القسم يقبل الحروف العربية فقط', 'error'); return;
-  }
+  if (!wardEl.value.trim()) { errors.push('القسم'); }
+  else if (!validateArabic(wardEl, 'ward-msg')) { errors.push('القسم (عربي فقط)'); }
+
   const locEl = document.getElementById('arrestLocation');
-  if (locEl.value && !validateArabic(locEl, 'arrestLocation-msg')) {
-    showToast('⚠ حقل المكان/القسم يقبل الحروف العربية فقط', 'error'); return;
+  if (!locEl.value.trim()) { errors.push('المكان/القسم'); }
+  else if (!validateArabic(locEl, 'arrestLocation-msg')) { errors.push('المكان/القسم (عربي فقط)'); }
+
+  // Required times
+  ['codeBlueTime','cprStartTime','teamArrivalTime','cprEndTime'].forEach(id => {
+    if (!gv(id)) errors.push(document.querySelector(`label[for="${id}"]`)?.textContent?.replace('*','').trim() || id);
+  });
+
+  // Required number
+  if (gv('cprCycles') === '') errors.push('عدد دورات CPR');
+
+  // Required radio groups
+  const radioGroups = {
+    'defibrillation': 'استخدام الصدمات الكهربائية',
+    'finalOutcome': 'نتيجة الإنعاش النهائية',
+    'hasCprForm': 'يوجد نموذج توثيق CPR',
+    'formComplete': 'نموذج التوثيق كامل البيانات',
+    'dischargeCondition': 'الحالة عند الخروج',
+    'deathBefore24h': 'وفاة قبل 24 ساعة',
+    'deathAfter24h': 'وفاة بعد 24 ساعة',
+  };
+  Object.entries(radioGroups).forEach(([name, label]) => {
+    if (!gr(name)) errors.push(label);
+  });
+
+  if (errors.length) {
+    showToast(`⚠ يرجى إكمال: ${errors.slice(0,2).join(' — ')}${errors.length > 2 ? ` (+${errors.length-2})` : ''}`, 'error');
+    return;
   }
 
   records.push({
@@ -873,11 +918,14 @@ function resetForm(keepMeta=false) {
    'cprCycles','cprEndTime','totalDuration','dischargeDate'].forEach(id=>{
     const el=document.getElementById(id); if(el&&!el.readOnly) el.value='';
   });
-  ['patientName','medicalId','admissionDate','ward','arrestLocation','hospital'].forEach(id=>{
+  ['patientName','medicalId','admissionDate','ward','arrestLocation'].forEach(id=>{
     const el=document.getElementById(id); if(el) clearState(el, document.getElementById(id+'-msg'));
   });
   if (!keepMeta) { ['hospital','month','year'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; }); }
   document.querySelectorAll('input[type=radio]').forEach(r=>r.checked=false);
+  // Unlock death fields
+  document.getElementById('deathBefore24h-field').classList.remove('na-locked');
+  document.getElementById('deathAfter24h-field').classList.remove('na-locked');
   updateProgress();
 }
 
@@ -971,89 +1019,6 @@ function showToast(msg,type='success') {
   t.textContent=msg; t.className=`toast ${type} show`;
   setTimeout(()=>t.classList.remove('show'),3000);
 }
-</script>
-
-<!-- ── PWA Install Prompt (Android / Desktop) ── -->
-<div id="pwa-install-bar">
-  <div class="pwa-icon">📲</div>
-  <div class="pwa-text">
-    <strong>تثبيت التطبيق</strong>
-    <span>يعمل بدون إنترنت — أسرع وأسهل في الاستخدام</span>
-  </div>
-  <button id="pwa-install-btn">تثبيت</button>
-  <button id="pwa-dismiss-btn" title="إغلاق">✕</button>
-</div>
-
-<!-- ── iOS Manual Install Hint ── -->
-<div id="ios-install-hint">
-  <div class="ios-title">📲 تثبيت التطبيق على iPhone / iPad</div>
-  <div class="ios-steps">
-    1. اضغط على زر <b>المشاركة</b> &#x238B; في أسفل المتصفح<br>
-    2. اختر <b>"إضافة إلى الشاشة الرئيسية"</b><br>
-    3. اضغط <b>إضافة</b> — سيظهر التطبيق على شاشتك
-  </div>
-  <button class="ios-close-btn" id="ios-close-btn">فهمت، شكراً</button>
-</div>
-
-<script>
-// ── Service Worker Registration ──
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('SW registered:', reg.scope))
-      .catch(err => console.log('SW registration failed:', err));
-  });
-}
-
-// ── PWA Install Prompt (Android / Chrome) ──
-let deferredPrompt = null;
-const installBar = document.getElementById('pwa-install-bar');
-const installBtn = document.getElementById('pwa-install-btn');
-const dismissBtn = document.getElementById('pwa-dismiss-btn');
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  // Only show if not already installed and not dismissed this session
-  if (!sessionStorage.getItem('pwa-dismissed')) {
-    installBar.classList.add('visible');
-  }
-});
-
-installBtn.addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  installBar.classList.remove('visible');
-  if (outcome === 'accepted') showToast('✓ تم تثبيت التطبيق بنجاح', 'success');
-});
-
-dismissBtn.addEventListener('click', () => {
-  installBar.classList.remove('visible');
-  sessionStorage.setItem('pwa-dismissed', '1');
-});
-
-window.addEventListener('appinstalled', () => {
-  installBar.classList.remove('visible');
-  deferredPrompt = null;
-});
-
-// ── iOS Install Hint ──
-const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-const isInStandaloneMode = window.navigator.standalone === true;
-const iosHint = document.getElementById('ios-install-hint');
-const iosClose = document.getElementById('ios-close-btn');
-
-if (isIos && !isInStandaloneMode && !sessionStorage.getItem('ios-hint-dismissed')) {
-  // Show after a short delay so it doesn't feel jarring
-  setTimeout(() => iosHint.classList.add('visible'), 2500);
-}
-
-iosClose.addEventListener('click', () => {
-  iosHint.classList.remove('visible');
-  sessionStorage.setItem('ios-hint-dismissed', '1');
-});
 </script>
 </body>
 </html>
