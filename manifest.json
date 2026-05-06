@@ -1,0 +1,40 @@
+{
+  "name": "نموذج الإنعاش القلبي الرئوي",
+  "short_name": "إنعاش قلبي",
+  "description": "نظام إدخال وتتبع حالات الإنعاش القلبي الرئوي في المستشفى — يعمل بدون إنترنت",
+  "start_url": "/cpr-form/",
+  "scope": "/cpr-form/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f0f9ff",
+  "theme_color": "#0369a1",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230369a1' width='192' height='192'/><text x='96' y='130' font-size='120' font-weight='bold' text-anchor='middle' fill='white' font-family='system-ui'>❤️</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%230369a1' width='512' height='512'/><text x='256' y='380' font-size='320' font-weight='bold' text-anchor='middle' fill='white' font-family='system-ui'>❤️</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["medical", "productivity"],
+  "shortcuts": [
+    {
+      "name": "حالة جديدة",
+      "short_name": "جديد",
+      "description": "إضافة حالة إنعاش قلبي جديدة",
+      "url": "/?tab=entry"
+    },
+    {
+      "name": "عرض الحالات",
+      "short_name": "الحالات",
+      "description": "عرض الحالات المسجلة",
+      "url": "/?tab=cases"
+    }
+  ]
+}
