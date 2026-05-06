@@ -1,9 +1,8 @@
 const CACHE_NAME = 'cpr-form-v1';
-const BASE = '/cpr-form/';
 const urlsToCache = [
-  BASE,
-  BASE + 'index.html',
-  BASE + 'manifest.json',
+  '/',
+  '/index.html',
+  '/manifest.json',
 ];
 
 // Install event - cache essential files
@@ -71,7 +70,7 @@ self.addEventListener('fetch', (event) => {
     }).catch(() => {
       // Return a fallback response if offline
       if (event.request.mode === 'navigate') {
-        return caches.match(BASE + 'index.html');
+        return caches.match('/index.html');
       }
       return new Response('Offline - Content not available', {
         status: 503,

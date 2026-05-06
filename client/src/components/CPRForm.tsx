@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -17,21 +16,22 @@ interface CPRFormProps {
 
 export function CPRForm({ onSubmit, initialData, isLoading = false }: CPRFormProps) {
   const [formData, setFormData] = useState<Omit<CPRCase, 'id' | 'createdAt' | 'updatedAt' | 'synced'>>({
+    // Hospital Info
     hospitalName: initialData?.hospitalName || '',
     governorate: initialData?.governorate || '',
     month: initialData?.month || '',
     year: initialData?.year || new Date().getFullYear(),
     
-    // Patient Data
+    // Patient Data (بيانات المريض)
     patientName: initialData?.patientName || '',
     medicalId: initialData?.medicalId || '',
     
-    // Admission Data
+    // Admission Data (بيانات الدخول)
     admissionDate: initialData?.admissionDate || '',
     diagnosis: initialData?.diagnosis || '',
     department: initialData?.department || '',
     
-    // Code Blue Response
+    // Code Blue Response (الاستجابة للCode Blue)
     cardiacArrestDate: initialData?.cardiacArrestDate || '',
     cardiacArrestLocation: initialData?.cardiacArrestLocation || '',
     codeBlueAnnouncementTime: initialData?.codeBlueAnnouncementTime || '',
@@ -39,27 +39,27 @@ export function CPRForm({ onSubmit, initialData, isLoading = false }: CPRFormPro
     codeBlueTeamArrivalTime: initialData?.codeBlueTeamArrivalTime || '',
     responseTime: initialData?.responseTime || '',
     
-    // CPR Quality
+    // CPR Quality (جودة عملية الإنعاش)
     cprCycles: initialData?.cprCycles || 0,
     defibrillationUsed: initialData?.defibrillationUsed || false,
     cprEndTime: initialData?.cprEndTime || '',
     totalResuscitationTime: initialData?.totalResuscitationTime || '',
     resuscitationOutcome: initialData?.resuscitationOutcome || 'success',
     
-    // Documentation
+    // Documentation (التوثيق)
     cprFormExists: initialData?.cprFormExists || false,
     cprFormComplete: initialData?.cprFormComplete || false,
     
-    // Discharge Data
+    // Discharge Data (بيانات الخروج)
     dischargeDate: initialData?.dischargeDate || '',
     dischargeStatus: initialData?.dischargeStatus || '',
     
-    // Death Cases
+    // Death Cases (حالات الوفاة)
     deathBefore24Hours: initialData?.deathBefore24Hours || false,
     deathAfter24Hours: initialData?.deathAfter24Hours || false,
   });
 
-  const [activeStep, setActiveStep] = useState<'meta' | 'patient' | 'admission' | 'codeblue' | 'cpr' | 'documentation' | 'discharge'>('meta');
+  const [activeStep, setActiveStep] = useState<'meta' | 'patient' | 'admission' | 'arrest' | 'cpr' | 'documentation' | 'discharge'>('meta');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleInputChange = (field: string, value: any) => {
@@ -132,13 +132,13 @@ export function CPRForm({ onSubmit, initialData, isLoading = false }: CPRFormPro
   };
 
   const steps = [
-    { id: 'meta', label: 'Hospital Info', icon: '🏥' },
-    { id: 'patient', label: 'Patient Data', icon: '👤' },
-    { id: 'admission', label: 'Admission', icon: '📋' },
-    { id: 'codeblue', label: 'Code Blue', icon: '🚨' },
-    { id: 'cpr', label: 'CPR Details', icon: '❤️' },
-    { id: 'documentation', label: 'Documentation', icon: '📄' },
-    { id: 'discharge', label: 'Discharge', icon: '✓' },
+    { id: 'meta', label: 'Hospital Info', icon: '🏥', arabic: 'معلومات المستشفى' },
+    { id: 'patient', label: 'Patient Data', icon: '👤', arabic: 'بيانات المريض' },
+    { id: 'admission', label: 'Admission', icon: '📋', arabic: 'بيانات الدخول' },
+    { id: 'arrest', label: 'Cardiac Arrest', icon: '⏱️', arabic: 'توقف القلب' },
+    { id: 'cpr', label: 'CPR Details', icon: '❤️', arabic: 'تفاصيل الإنعاش' },
+    { id: 'documentation', label: 'Documentation', icon: '📄', arabic: 'التوثيق' },
+    { id: 'discharge', label: 'Discharge', icon: '✓', arabic: 'الخروج' },
   ];
 
   const FormField = ({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) => (
@@ -170,11 +170,11 @@ export function CPRForm({ onSubmit, initialData, isLoading = false }: CPRFormPro
         ))}
       </div>
 
-      {/* Hospital Info Step */}
+      {/* Hospital Info */}
       {activeStep === 'meta' && (
         <div className="workflow-card p-6 space-y-4">
           <h2 className="text-lg font-bold text-blue-900 flex items-center gap-2">
-            <span>🏥</span> Hospital Information
+            <span>🏥</span> معلومات المستشفى
           </h2>
           <FormField label="Hospital Name" error={errors.hospitalName}>
             <Input
@@ -214,20 +214,20 @@ export function CPRForm({ onSubmit, initialData, isLoading = false }: CPRFormPro
         </div>
       )}
 
-      {/* Patient Data Step */}
+      {/* Patient Data - بيانات المريض */}
       {activeStep === 'patient' && (
         <div className="workflow-card p-6 space-y-4">
           <h2 className="text-lg font-bold text-blue-900 flex items-center gap-2">
-            <span>👤</span> Patient Information
+            <span>👤</span> بيانات المريض
           </h2>
-          <FormField label="Full Patient Name" error={errors.patientName}>
+          <FormField label="اسم المريض الرباعي" error={errors.patientName}>
             <Input
               value={formData.patientName}
               onChange={(e) => handleInputChange('patientName', e.target.value)}
               placeholder="Enter full name"
             />
           </FormField>
-          <FormField label="Medical ID" error={errors.medicalId}>
+          <FormField label="الرقم الطبي الموحد" error={errors.medicalId}>
             <Input
               value={formData.medicalId}
               onChange={(e) => handleInputChange('medicalId', e.target.value)}
@@ -237,20 +237,20 @@ export function CPRForm({ onSubmit, initialData, isLoading = false }: CPRFormPro
         </div>
       )}
 
-      {/* Admission Data Step */}
+      {/* Admission Data - بيانات الدخول */}
       {activeStep === 'admission' && (
         <div className="workflow-card p-6 space-y-4">
           <h2 className="text-lg font-bold text-blue-900 flex items-center gap-2">
-            <span>📋</span> Admission Data
+            <span>📋</span> بيانات الدخول
           </h2>
-          <FormField label="Admission Date" error={errors.admissionDate}>
+          <FormField label="تاريخ دخول المستشفى" error={errors.admissionDate}>
             <Input
               type="date"
               value={formData.admissionDate}
               onChange={(e) => handleInputChange('admissionDate', e.target.value)}
             />
           </FormField>
-          <FormField label="Diagnosis">
+          <FormField label="التشخيص">
             <Textarea
               value={formData.diagnosis}
               onChange={(e) => handleInputChange('diagnosis', e.target.value)}
@@ -258,7 +258,7 @@ export function CPRForm({ onSubmit, initialData, isLoading = false }: CPRFormPro
               rows={3}
             />
           </FormField>
-          <FormField label="Department">
+          <FormField label="القسم">
             <Input
               value={formData.department}
               onChange={(e) => handleInputChange('department', e.target.value)}
@@ -268,20 +268,20 @@ export function CPRForm({ onSubmit, initialData, isLoading = false }: CPRFormPro
         </div>
       )}
 
-      {/* Code Blue Response Step */}
-      {activeStep === 'codeblue' && (
+      {/* Cardiac Arrest - توقف القلب */}
+      {activeStep === 'arrest' && (
         <div className="workflow-card p-6 space-y-4">
           <h2 className="text-lg font-bold text-blue-900 flex items-center gap-2">
-            <span>🚨</span> Code Blue Response
+            <span>⏱️</span> الاستجابة للCode Blue
           </h2>
-          <FormField label="Cardiac Arrest Date" error={errors.cardiacArrestDate}>
+          <FormField label="تاريخ حدوث توقف القلب" error={errors.cardiacArrestDate}>
             <Input
               type="date"
               value={formData.cardiacArrestDate}
               onChange={(e) => handleInputChange('cardiacArrestDate', e.target.value)}
             />
           </FormField>
-          <FormField label="Cardiac Arrest Location">
+          <FormField label="المكان / القسم">
             <Input
               value={formData.cardiacArrestLocation}
               onChange={(e) => handleInputChange('cardiacArrestLocation', e.target.value)}
@@ -289,14 +289,14 @@ export function CPRForm({ onSubmit, initialData, isLoading = false }: CPRFormPro
             />
           </FormField>
           <div className="grid grid-cols-2 gap-4">
-            <FormField label="Code Blue Announcement Time">
+            <FormField label="وقت اعلان Code Blue">
               <Input
                 type="time"
                 value={formData.codeBlueAnnouncementTime}
                 onChange={(e) => handleInputChange('codeBlueAnnouncementTime', e.target.value)}
               />
             </FormField>
-            <FormField label="CPR Start Time">
+            <FormField label="وقت بداية CPR">
               <Input
                 type="time"
                 value={formData.cprStartTime}
@@ -305,14 +305,14 @@ export function CPRForm({ onSubmit, initialData, isLoading = false }: CPRFormPro
             </FormField>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <FormField label="Code Blue Team Arrival Time">
+            <FormField label="وقت وصول فريق الCode Blue كاملا">
               <Input
                 type="time"
                 value={formData.codeBlueTeamArrivalTime}
                 onChange={(e) => handleInputChange('codeBlueTeamArrivalTime', e.target.value)}
               />
             </FormField>
-            <FormField label="Response Time (minutes)">
+            <FormField label="زمن الاستجابة للCode Blue (دقائق)">
               <Input
                 type="number"
                 value={formData.responseTime}
@@ -324,13 +324,13 @@ export function CPRForm({ onSubmit, initialData, isLoading = false }: CPRFormPro
         </div>
       )}
 
-      {/* CPR Details Step */}
+      {/* CPR Details - جودة عملية الإنعاش */}
       {activeStep === 'cpr' && (
         <div className="workflow-card p-6 space-y-4">
           <h2 className="text-lg font-bold text-blue-900 flex items-center gap-2">
-            <span>❤️</span> CPR Details
+            <span>❤️</span> جودة عملية الإنعاش القلبية التنفسية
           </h2>
-          <FormField label="Number of CPR Cycles">
+          <FormField label="عدد دورات CPR">
             <Input
               type="number"
               value={formData.cprCycles}
@@ -338,23 +338,23 @@ export function CPRForm({ onSubmit, initialData, isLoading = false }: CPRFormPro
               placeholder="0"
             />
           </FormField>
-          <FormField label="Defibrillation Used">
+          <FormField label="استخدام الصدمات الكهربائية">
             <div className="flex items-center gap-2">
               <Checkbox
                 checked={formData.defibrillationUsed}
                 onCheckedChange={(checked) => handleInputChange('defibrillationUsed', checked)}
               />
-              <span className="text-sm">Yes, defibrillation was used</span>
+              <span className="text-sm">نعم، تم استخدام الصدمات الكهربائية</span>
             </div>
           </FormField>
-          <FormField label="CPR End Time">
+          <FormField label="ساعة انتهاء CPR">
             <Input
               type="time"
               value={formData.cprEndTime}
               onChange={(e) => handleInputChange('cprEndTime', e.target.value)}
             />
           </FormField>
-          <FormField label="Total Resuscitation Time (minutes)">
+          <FormField label="مدة الانعاش الكلية (دقائق)">
             <Input
               type="number"
               value={formData.totalResuscitationTime}
@@ -362,83 +362,83 @@ export function CPRForm({ onSubmit, initialData, isLoading = false }: CPRFormPro
               placeholder="0"
             />
           </FormField>
-          <FormField label="Resuscitation Outcome">
+          <FormField label="نتيجة الانعاش النهائية">
             <Select value={formData.resuscitationOutcome} onValueChange={(value) => handleInputChange('resuscitationOutcome', value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="success">Success (نجاة)</SelectItem>
-                <SelectItem value="failure">Failure (وفاة)</SelectItem>
+                <SelectItem value="success">نجاة (Success)</SelectItem>
+                <SelectItem value="failure">وفاة (Failure)</SelectItem>
               </SelectContent>
             </Select>
           </FormField>
         </div>
       )}
 
-      {/* Documentation Step */}
+      {/* Documentation - التوثيق */}
       {activeStep === 'documentation' && (
         <div className="workflow-card p-6 space-y-4">
           <h2 className="text-lg font-bold text-blue-900 flex items-center gap-2">
-            <span>📄</span> Documentation
+            <span>📄</span> التوثيق
           </h2>
-          <FormField label="CPR Form Exists">
+          <FormField label="يوجد نموذج توثيق CPR">
             <div className="flex items-center gap-2">
               <Checkbox
                 checked={formData.cprFormExists}
                 onCheckedChange={(checked) => handleInputChange('cprFormExists', checked)}
               />
-              <span className="text-sm">CPR documentation form exists</span>
+              <span className="text-sm">نعم، يوجد نموذج توثيق</span>
             </div>
           </FormField>
-          <FormField label="CPR Form Complete">
+          <FormField label="نموذج التوثيق كامل البيانات">
             <div className="flex items-center gap-2">
               <Checkbox
                 checked={formData.cprFormComplete}
                 onCheckedChange={(checked) => handleInputChange('cprFormComplete', checked)}
               />
-              <span className="text-sm">All data fields are complete</span>
+              <span className="text-sm">نعم، النموذج كامل البيانات</span>
             </div>
           </FormField>
         </div>
       )}
 
-      {/* Discharge Step */}
+      {/* Discharge & Outcomes - بيانات الخروج */}
       {activeStep === 'discharge' && (
         <div className="workflow-card p-6 space-y-4">
           <h2 className="text-lg font-bold text-blue-900 flex items-center gap-2">
-            <span>✓</span> Discharge & Outcomes
+            <span>✓</span> بيانات الخروج وحالات الوفاة
           </h2>
-          <FormField label="Discharge Date">
+          <FormField label="تاريخ الخروج">
             <Input
               type="date"
               value={formData.dischargeDate}
               onChange={(e) => handleInputChange('dischargeDate', e.target.value)}
             />
           </FormField>
-          <FormField label="Discharge Status">
+          <FormField label="الحالة عند الخروج">
             <Input
               value={formData.dischargeStatus}
               onChange={(e) => handleInputChange('dischargeStatus', e.target.value)}
               placeholder="Enter discharge status"
             />
           </FormField>
-          <FormField label="Death Before 24 Hours">
+          <FormField label="وفاة قبل 24 ساعة من CPR">
             <div className="flex items-center gap-2">
               <Checkbox
                 checked={formData.deathBefore24Hours}
                 onCheckedChange={(checked) => handleInputChange('deathBefore24Hours', checked)}
               />
-              <span className="text-sm">Patient died before 24 hours</span>
+              <span className="text-sm">نعم، المريض توفي قبل 24 ساعة</span>
             </div>
           </FormField>
-          <FormField label="Death After 24 Hours">
+          <FormField label="وفاة بعد 24 ساعة من CPR">
             <div className="flex items-center gap-2">
               <Checkbox
                 checked={formData.deathAfter24Hours}
                 onCheckedChange={(checked) => handleInputChange('deathAfter24Hours', checked)}
               />
-              <span className="text-sm">Patient died after 24 hours</span>
+              <span className="text-sm">نعم، المريض توفي بعد 24 ساعة</span>
             </div>
           </FormField>
         </div>
