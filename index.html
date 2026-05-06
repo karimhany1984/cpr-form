@@ -646,7 +646,7 @@ function computeResponseTime() {
   if (t1 && t2) {
     const [h1,m1]=t1.split(':').map(Number), [h2,m2]=t2.split(':').map(Number);
     let d=(h2*60+m2)-(h1*60+m1); if(d<0)d+=1440;
-    document.getElementById('responseTime').value = d + ' دقيقة';
+    document.getElementById('responseTime').value = d ;
   } else document.getElementById('responseTime').value='';
 }
 function computeTotalDuration() {
@@ -655,7 +655,7 @@ function computeTotalDuration() {
   if (t1 && t2) {
     const [h1,m1]=t1.split(':').map(Number), [h2,m2]=t2.split(':').map(Number);
     let d=(h2*60+m2)-(h1*60+m1); if(d<0)d+=1440;
-    document.getElementById('totalDuration').value = d + ' دقيقة';
+    document.getElementById('totalDuration').value = d ;
   } else document.getElementById('totalDuration').value='';
 }
 document.getElementById('codeBlueTime').addEventListener('change', computeResponseTime);
@@ -778,7 +778,7 @@ function computeResponseTime() {
   if (t1 && t2) {
     const [h1,m1]=t1.split(':').map(Number), [h2,m2]=t2.split(':').map(Number);
     let d=(h2*60+m2)-(h1*60+m1); if(d<0)d+=1440;
-    document.getElementById('responseTime').value = d + ' دقيقة';
+    document.getElementById('responseTime').value = d ;
   } else document.getElementById('responseTime').value='';
 }
 function computeTotalDuration() {
@@ -787,7 +787,7 @@ function computeTotalDuration() {
   if (t1 && t2) {
     const [h1,m1]=t1.split(':').map(Number), [h2,m2]=t2.split(':').map(Number);
     let d=(h2*60+m2)-(h1*60+m1); if(d<0)d+=1440;
-    document.getElementById('totalDuration').value = d + ' دقيقة';
+    document.getElementById('totalDuration').value = d;
   } else document.getElementById('totalDuration').value='';
 }
 document.getElementById('codeBlueTime').addEventListener('change', computeResponseTime);
