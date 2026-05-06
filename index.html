@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>نموذج توثيق CPR</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#018a46">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CPR نموذج">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -1138,5 +1144,74 @@ function showToast(msg,type='success') {
   setTimeout(()=>t.classList.remove('show'),3000);
 }
 </script>
+<!-- ── PWA Install Banner ─────────────────────────────────────────────────── -->
+<div id="installBanner" style="
+  display:none; position:fixed; bottom:0; left:0; right:0;
+  background:linear-gradient(135deg,#0d2b12 0%,#1a5c28 50%,#0d2b12 100%);
+  color:#fff; z-index:9999; padding:14px 20px;
+  box-shadow:0 -4px 20px rgba(0,0,0,0.35);
+  direction:rtl; font-family:'Cairo',sans-serif;
+  align-items:center; gap:14px;
+  border-top:1px solid rgba(100,255,150,0.2);
+">
+  <button id="installBannerClose" style="
+    background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25);
+    color:#fff; border-radius:7px; width:36px; height:36px;
+    font-size:16px; cursor:pointer; display:flex; align-items:center;
+    justify-content:center; flex-shrink:0;
+  ">✕</button>
+  <div style="flex:1; min-width:0;">
+    <div style="font-weight:800; font-size:15px; margin-bottom:2px;">تثبيت التطبيق</div>
+    <div style="font-size:12px; color:rgba(255,255,255,0.75); font-family:'Tajawal',sans-serif; line-height:1.4;">
+      يعمل بدون إنترنت – أسرع وأسهل في الاستخدام
+    </div>
+  </div>
+  <div style="font-size:28px; flex-shrink:0; opacity:0.85;">📱</div>
+  <button id="installBannerBtn" style="
+    background:#fff; color:#0f3d18; border:none; border-radius:8px;
+    padding:10px 22px; font-family:'Cairo',sans-serif;
+    font-size:14px; font-weight:700; cursor:pointer; flex-shrink:0;
+    box-shadow:0 2px 8px rgba(0,0,0,0.2);
+  ">تثبيت</button>
+</div>
+
+<script>
+(function () {
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(function(){});
+  }
+
+  var deferredPrompt = null;
+  var banner = document.getElementById('installBanner');
+  var installBtn = document.getElementById('installBannerBtn');
+  var closeBtn = document.getElementById('installBannerClose');
+
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    banner.style.display = 'flex';
+  });
+
+  window.addEventListener('appinstalled', function() {
+    banner.style.display = 'none';
+    deferredPrompt = null;
+  });
+
+  closeBtn.addEventListener('click', function() {
+    banner.style.display = 'none';
+  });
+
+  installBtn.addEventListener('click', function() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function() {
+      banner.style.display = 'none';
+      deferredPrompt = null;
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
