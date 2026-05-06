@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cpr-form-v3';
+const CACHE_NAME = 'cpr-form-v4';
 const BASE = '/cpr-form/';
 const urlsToCache = [
   BASE,
