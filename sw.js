@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cpr-form-v12';
+const CACHE_NAME = 'cpr-form-v13';
 
 // Use relative paths so this works regardless of GitHub Pages repo name
 const urlsToCache = [
