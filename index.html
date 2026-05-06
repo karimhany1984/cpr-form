@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>نموذج توثيق CPR</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -629,7 +630,7 @@
     </div>
   </div>
 
-  <button class="btn btn-export" onclick="exportToExcel()">⬇ تصدير إلى Excel (.xlsx)</button>
+  <button class="btn btn-export" id="exportBtn" onclick="handleExport()">⬇ تصدير إلى Excel (.xlsx)</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -801,6 +802,22 @@ watchFields.forEach(id => { const el=document.getElementById(id); if(el) el.addE
 document.querySelectorAll('input[type=radio]').forEach(r => r.addEventListener('change', updateProgress));
 document.getElementById('hospital').addEventListener('change', updateProgress);
 
+// ── Auto-set deathAfter24h based on deathBefore24h ─────────────────────────
+document.querySelectorAll('input[name="deathBefore24h"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    const val = document.querySelector('input[name="deathBefore24h"]:checked')?.value;
+    if (val === '0') {
+      document.getElementById('da1').checked = true;
+    } else if (val === '1') {
+      document.getElementById('da0').checked = true;
+    } else {
+      // NA — clear deathAfter24h
+      document.querySelectorAll('input[name="deathAfter24h"]').forEach(r => r.checked = false);
+    }
+    updateProgress();
+  });
+});
+
 function updateProgress() {
   const tf = watchFields.filter(id => { const el=document.getElementById(id); return el&&el.value.trim()!=''; }).length;
   const rg = ['defibrillation','hasCprForm','formComplete','finalOutcome','dischargeCondition','deathBefore24h','deathAfter24h'];
@@ -929,89 +946,164 @@ function resetForm(keepMeta=false) {
   updateProgress();
 }
 
-// ── Excel Export matching the template format ───────────────────────────────
-function exportToExcel() {
+// ── Excel Export — pixel-perfect template match ─────────────────────────────
+async function exportToExcel() {
   if (!records.length) { showToast('⚠ لا توجد سجلات للتصدير','error'); return; }
 
-  const wb = XLSX.utils.book_new();
-  const rows = [];
-
-  // Row 1: header meta (matches template rows 1-2 merged)
-  const r1 = Array(23).fill('');
-  r1[1]='المحافظة :  الإسكندرية ';
-  r1[4]='المستشفى :'; r1[5]=records[0].hospital||'';
-  r1[6]='شهر : '; r1[7]=records[0].month||'';
-  r1[8]='سنه:'; r1[9]=records[0].year||'';
-  rows.push(r1);
-
-  // Row 2: empty (merged with row 1 in template)
-  rows.push(Array(23).fill(''));
-
-  // Row 3: empty spacer
-  rows.push(Array(23).fill(''));
-
-  // Row 4: section headers (matches template row 4)
-  const r4 = Array(23).fill('');
-  r4[0]='م';
-  r4[1]='بيانات المريض';
-  r4[3]='بيانات الدخول';
-  r4[6]='الاستجابة للCode Blue';
-  r4[12]='جودة عملية الافاقة القلبية التنفسية';
-  r4[17]='التوثيق';
-  r4[19]='بيانات الخروج';
-  r4[21]='حالات الوفاة بعد CPR';
-  rows.push(r4);
-
-  // Row 5: column headers
-  rows.push(['م','اسم المريض الرباعي ','الرقم الطبي الموحد','تاريخ دخول المستشفى','التشخيص','القسم ',
-    'تاريخ حدوث توقف القلب','المكان/ القسم','وقت اعلان Code Blue','وقت بداية CPR',
-    'وقت وصول فريق الCode Blue كاملا','زمن الاستجابة للCode Blue','عدد دورات CPR',
-    'استخدام الصدمات الكهربائية','ساعة انتهاء CPR','مدة الانعاش الكلية',
-    'نتيجة الانعاش النهائية (نجاة / وفاة)','يوجد نموذج توثيق CPR',
-    'نموذج التوثيق كامل البيانات ','تاريخ الخروج','الحالة عند الخروج',
-    'وفاة قبل 24 ساعة من CPR ','وفاة بعد 24 ساعة من CPR']);
-
-  // Data rows
-  records.forEach((r,i)=>{
-    rows.push([i+1,r.patientName,r.medicalId,r.admissionDate,r.diagnosis,r.ward,
-      r.cardiacArrestDate,r.arrestLocation,r.codeBlueTime,r.cprStartTime,
-      r.teamArrivalTime,r.responseTime,r.cprCycles!==''?Number(r.cprCycles):'',
-      r.defibrillation,r.cprEndTime,r.totalDuration,r.finalOutcome,
-      r.hasCprForm,r.formComplete,r.dischargeDate,r.dischargeCondition,
-      r.deathBefore24h,r.deathAfter24h]);
+  // Auto-fix deathAfter24h based on deathBefore24h before export
+  records.forEach(r => {
+    if (r.deathBefore24h === '0') r.deathAfter24h = '1';
+    else if (r.deathBefore24h === '1') r.deathAfter24h = '0';
   });
 
-  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const wb = new ExcelJS.Workbook();
+  wb.creator = 'CPR System';
+  wb.created = new Date();
 
-  // RTL sheet view
-  ws['!sheetView'] = [{ rightToLeft: true }];
+  const ws = wb.addWorksheet('Sheet1', {
+    views: [{ rightToLeft: true }],
+    pageSetup: { orientation: 'landscape' }
+  });
 
-  // Column widths matching template
-  ws['!cols']=[
-    {wch:2.38},{wch:15.75},{wch:13.5},{wch:18.63},{wch:15.13},{wch:12.25},
-    {wch:19.5},{wch:15.88},{wch:17.75},{wch:19.5},{wch:23.5},{wch:18.13},
-    {wch:10.38},{wch:17.38},{wch:12.88},{wch:12.88},{wch:21.38},{wch:16.38},
-    {wch:17.75},{wch:12.63},{wch:11.38},{wch:17.25},{wch:16.75}
+  // ── Column widths (matching template exactly) ──────────────────────────────
+  const colWidths = [2.42,15.71,13.43,18.57,15.14,12.29,19.43,15.86,17.71,19.43,23.43,18.14,10.43,17.43,12.86,12.86,21.43,16.43,17.71,12.57,11.43,17.29,16.71];
+  colWidths.forEach((w, i) => { ws.getColumn(i+1).width = w; });
+
+  // ── Styles ─────────────────────────────────────────────────────────────────
+  const thinBorder = (sides) => {
+    const b = {};
+    const s = { style: 'thin', color: { argb: 'FF000000' } };
+    sides.forEach(side => b[side] = s);
+    return b;
+  };
+  const allBorders = thinBorder(['top','bottom','left','right']);
+
+  const headerFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDEEAF6' } };
+  const headerFont = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF2E75B5' } };
+  const subHeaderFont = { name: 'Calibri', size: 11, bold: false };
+  const dataFont = { name: 'Calibri', size: 11 };
+  const metaFont = { name: 'Calibri', size: 11 };
+  const centerAlign = { horizontal: 'center', vertical: 'middle', wrapText: true };
+  const rtlAlign = { readingOrder: 'rtl', vertical: 'middle', wrapText: true };
+
+  // ── Row 1: Meta header ─────────────────────────────────────────────────────
+  ws.getRow(1).height = 20.25;
+  const r1 = ws.getRow(1);
+  r1.getCell(2).value = `المحافظة :  الإسكندرية `;
+  r1.getCell(5).value = `المستشفى :   ${records[0].hospital||''}`;
+  r1.getCell(7).value = `شهر : ${records[0].month||''}`;
+  r1.getCell(9).value = `سنه: ${records[0].year||''}`;
+  [2,5,7,9].forEach(c => {
+    r1.getCell(c).font = metaFont;
+    r1.getCell(c).alignment = { vertical: 'center', readingOrder: 'rtl' };
+  });
+
+  // ── Rows 2-3: empty ────────────────────────────────────────────────────────
+  [2,3].forEach(i => { ws.getRow(i).height = 14.25; });
+
+  // ── Row 4: Section headers ─────────────────────────────────────────────────
+  ws.getRow(4).height = 14.25;
+  const sectionHeaders = [
+    { col: 1, val: 'م' },
+    { col: 2, val: 'بيانات المريض' },
+    { col: 4, val: 'بيانات الدخول' },
+    { col: 7, val: 'الاستجابة للCode Blue' },
+    { col: 13, val: 'جودة عملية الافاقة القلبية التنفسية' },
+    { col: 18, val: 'التوثيق' },
+    { col: 20, val: 'بيانات الخروج' },
+    { col: 22, val: 'حالات الوفاة بعد CPR' },
   ];
+  // Fill all cols in row4 with header fill + left/right/top border
+  for (let c = 1; c <= 23; c++) {
+    const cell = ws.getRow(4).getCell(c);
+    cell.fill = headerFill;
+    cell.border = thinBorder(c === 1 ? ['left','right','top'] :
+                              c === 23 ? ['right','top'] :
+                              ['top','right']);
+  }
+  sectionHeaders.forEach(({ col, val }) => {
+    const cell = ws.getRow(4).getCell(col);
+    cell.value = val;
+    cell.font = headerFont;
+    cell.alignment = centerAlign;
+    cell.border = thinBorder(['left','right','top']);
+  });
 
-  // Merge cells matching template: B1:D2, E1:F2, G1:G2, I1:I2, B4:C4, D4:F4, G4:L4, M4:Q4, R4:S4, T4:U4, V4:W4
-  ws['!merges'] = [
-    {s:{r:0,c:1},e:{r:1,c:3}},   // B1:D2
-    {s:{r:0,c:4},e:{r:1,c:5}},   // E1:F2
-    {s:{r:0,c:6},e:{r:1,c:6}},   // G1:G2
-    {s:{r:0,c:8},e:{r:1,c:8}},   // I1:I2
-    {s:{r:3,c:1},e:{r:3,c:2}},   // B4:C4
-    {s:{r:3,c:3},e:{r:3,c:5}},   // D4:F4
-    {s:{r:3,c:6},e:{r:3,c:11}},  // G4:L4
-    {s:{r:3,c:12},e:{r:3,c:16}}, // M4:Q4
-    {s:{r:3,c:17},e:{r:3,c:18}}, // R4:S4
-    {s:{r:3,c:19},e:{r:3,c:20}}, // T4:U4
-    {s:{r:3,c:21},e:{r:3,c:22}}, // V4:W4
-  ];
+  // ── Merges ─────────────────────────────────────────────────────────────────
+  ws.mergeCells('B1:D2');
+  ws.mergeCells('E1:F2');
+  ws.mergeCells('G1:G2');
+  ws.mergeCells('I1:I2');
+  ws.mergeCells('B4:C4');
+  ws.mergeCells('D4:F4');
+  ws.mergeCells('G4:L4');
+  ws.mergeCells('M4:Q4');
+  ws.mergeCells('R4:S4');
+  ws.mergeCells('T4:U4');
+  ws.mergeCells('V4:W4');
 
-  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-  XLSX.writeFile(wb, `Code_Blue_CPR_${records[0].hospital||'مستشفى'}_${records[0].month||''}_${records[0].year||''}.xlsx`);
-  showToast(`✓ تم تصدير ${records.length} سجل بنجاح`,'success');
+  // ── Row 5: Column headers ──────────────────────────────────────────────────
+  ws.getRow(5).height = 14.25;
+  const colHeaders = ['م','اسم المريض الرباعي','الرقم الطبي الموحد','تاريخ دخول المستشفى',
+    'التشخيص','القسم','تاريخ حدوث توقف القلب','المكان/ القسم','وقت اعلان Code Blue',
+    'وقت بداية CPR','وقت وصول فريق الCode Blue كاملا','زمن الاستجابة للCode Blue',
+    'عدد دورات CPR','استخدام الصدمات الكهربائية','ساعة انتهاء CPR','مدة الانعاش الكلية',
+    'نتيجة الانعاش النهائية (نجاة / وفاة)','يوجد نموذج توثيق CPR',
+    'نموذج التوثيق كامل البيانات','تاريخ الخروج','الحالة عند الخروج',
+    'وفاة قبل 24 ساعة من CPR','وفاة بعد 24 ساعة من CPR'];
+  colHeaders.forEach((h, i) => {
+    const cell = ws.getRow(5).getCell(i+1);
+    cell.value = h;
+    cell.font = subHeaderFont;
+    cell.border = allBorders;
+    cell.alignment = { ...rtlAlign, horizontal: 'center', wrapText: true };
+  });
+
+  // ── Data rows ──────────────────────────────────────────────────────────────
+  records.forEach((r, i) => {
+    const rowNum = 6 + i;
+    ws.getRow(rowNum).height = 14.25;
+    const row = ws.getRow(rowNum);
+
+    const vals = [
+      i+1, r.patientName, r.medicalId, r.admissionDate, r.diagnosis, r.ward,
+      r.cardiacArrestDate, r.arrestLocation, r.codeBlueTime, r.cprStartTime,
+      r.teamArrivalTime, r.responseTime,
+      r.cprCycles !== '' ? Number(r.cprCycles) : '',
+      r.defibrillation, r.cprEndTime, r.totalDuration, r.finalOutcome,
+      r.hasCprForm, r.formComplete, r.dischargeDate, r.dischargeCondition,
+      r.deathBefore24h, r.deathAfter24h
+    ];
+
+    vals.forEach((v, ci) => {
+      const cell = row.getCell(ci+1);
+      cell.value = v === '' ? null : v;
+      cell.font = dataFont;
+      cell.border = allBorders;
+      cell.alignment = { ...rtlAlign, horizontal: 'center' };
+    });
+  });
+
+  // ── Write and download ─────────────────────────────────────────────────────
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Code_Blue_CPR_${records[0].hospital||'مستشفى'}_${records[0].month||''}_${records[0].year||''}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`✓ تم تصدير ${records.length} سجل بنجاح`, 'success');
+}
+
+function handleExport() {
+  const btn = document.getElementById('exportBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري التصدير...';
+  exportToExcel().finally(() => {
+    btn.disabled = false;
+    btn.textContent = '⬇ تصدير إلى Excel (.xlsx)';
+  });
 }
 
 function showToast(msg,type='success') {
