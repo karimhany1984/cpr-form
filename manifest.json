@@ -1,6 +1,6 @@
 {
   "name": "نموذج توثيق CPR — Code Blue",
-  "short_name": "CPR نموذج",
+  "short_name": "CPR متابعة المديريات",
   "description": "نظام توثيق حالات الإنعاش القلبي الرئوي في المستشفى — يعمل بدون إنترنت",
   "start_url": "./index.html",
   "scope": "./",
