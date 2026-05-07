@@ -1,10 +1,13 @@
-const CACHE_NAME = 'cpr-form-v31';
+const CACHE_NAME = 'cpr-form-v32';
 
 // Use relative paths so this works regardless of GitHub Pages repo name
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
+  './icons/icon-192x192.png',
+  './icons/icon-512x512.png',
+  './icons/apple-touch-icon.png',
   'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
   'https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap'
 ];
