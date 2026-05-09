@@ -519,8 +519,13 @@
     </div>
     <div class="section-body">
       <div class="field">
-        <label>عدد دورات CPR <span class="req">*</span></label>
-        <input type="number" id="cprCycles" min="0" step="1" placeholder="عدد الدورات" required>
+       
+  <label>عدد دورات CPR <span class="req">*</span></label>
+  <input type="text" id="cprCycles" 
+         inputmode="numeric" pattern="[0-9]+"
+         minlength="1" placeholder="عدد الدورات" required
+         title="الرجاء إدخال أرقام فقط (مثال: 5)">
+
       </div>
       <!-- Col N: "0,1,NA" -->
       <div class="field">
