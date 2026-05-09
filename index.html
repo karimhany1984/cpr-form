@@ -629,6 +629,9 @@
     <button class="btn btn-primary" onclick="addRecord()">＋ إضافة السجل</button>
     <button class="btn btn-reset" onclick="resetForm()">↺ مسح النموذج</button>
   </div>
+  <div style="margin-bottom:14px;">
+    <button class="btn" id="clearAllBtn" onclick="clearAllRecords()" style="background:#fff3f3;color:#dc2626;border:1.5px solid #fca5a5;font-size:13px;padding:9px 18px;">🗑 مسح جميع السجلات المحفوظة</button>
+  </div>
   <div class="divider"></div>
 
   <!-- RECORDS -->
@@ -647,8 +650,51 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ── Persistent storage via localStorage ─────────────────────────────────────
+const STORAGE_KEY = 'cpr_records_v1';
+const META_KEY    = 'cpr_meta_v1';
+
+// Initialize from storage (or defaults)
 let records = [];
-let serial = 1;
+let serial  = 1;
+(function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      records = data.records || [];
+      serial  = (typeof data.serial === 'number') ? data.serial : (records.length + 1);
+    }
+  } catch(e) { console.warn('Storage load failed:', e); records = []; serial = 1; }
+})();
+
+function saveToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ records, serial }));
+  } catch(e) { console.warn('Storage save failed:', e); }
+}
+
+function saveMetaToStorage() {
+  try {
+    const meta = {
+      hospital : document.getElementById('hospital')?.value || '',
+      month    : document.getElementById('month')?.value    || '',
+      year     : document.getElementById('year')?.value     || '',
+    };
+    localStorage.setItem(META_KEY, JSON.stringify(meta));
+  } catch(e) {}
+}
+
+function loadMetaFromStorage() {
+  try {
+    const raw = localStorage.getItem(META_KEY);
+    if (!raw) return;
+    const meta = JSON.parse(raw);
+    if (meta.hospital) document.getElementById('hospital').value = meta.hospital;
+    if (meta.month)    document.getElementById('month').value    = meta.month;
+    if (meta.year)     document.getElementById('year').value     = meta.year;
+  } catch(e) {}
+}
 
 // ── Time calculations ───────────────────────────────────────────────────────
 function computeResponseTime() {
@@ -833,6 +879,19 @@ watchFields.forEach(id => { const el=document.getElementById(id); if(el) el.addE
 document.querySelectorAll('input[type=radio]').forEach(r => r.addEventListener('change', updateProgress));
 document.getElementById('hospital').addEventListener('change', updateProgress);
 
+// ── Persist meta fields on change ───────────────────────────────────────────
+['hospital','month','year'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', saveMetaToStorage);
+});
+
+// ── On page load: restore meta + render existing records ────────────────────
+(function initPage() {
+  loadMetaFromStorage();
+  renderRecords();
+  updateProgress();
+})();
+
 // ── Auto-set deathAfter24h based on deathBefore24h ─────────────────────────
 document.querySelectorAll('input[name="deathBefore24h"]').forEach(radio => {
   radio.addEventListener('change', () => {
@@ -934,12 +993,13 @@ function addRecord() {
     dischargeDate: gv('dischargeDate'), dischargeCondition: gr('dischargeCondition'),
     deathBefore24h: gr('deathBefore24h'), deathAfter24h: gr('deathAfter24h'),
   });
+  saveToStorage();
   renderRecords();
   showToast('✓ تم إضافة السجل بنجاح', 'success');
   resetForm(true);
 }
 
-function deleteRecord(i) { records.splice(i,1); renderRecords(); showToast('تم حذف السجل','error'); }
+function deleteRecord(i) { records.splice(i,1); saveToStorage(); renderRecords(); showToast('تم حذف السجل','error'); }
 
 function renderRecords() {
   document.getElementById('recordCount').textContent = records.length;
@@ -1130,6 +1190,16 @@ async function exportToExcel() {
   a.click();
   URL.revokeObjectURL(url);
   showToast(`✓ تم تصدير ${records.length} سجل بنجاح`, 'success');
+}
+
+function clearAllRecords() {
+  if (!records.length) { showToast('لا توجد سجلات لمسحها', 'error'); return; }
+  if (!confirm(`هل أنت متأكد من مسح جميع السجلات (${records.length} سجل)؟\nلا يمكن التراجع عن هذا الإجراء.`)) return;
+  records = [];
+  serial  = 1;
+  saveToStorage();
+  renderRecords();
+  showToast('تم مسح جميع السجلات', 'error');
 }
 
 function handleExport() {
