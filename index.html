@@ -517,7 +517,7 @@
       <div class="section-icon">💊</div>
       <div><div class="section-title">جودة عملية الإفاقة القلبية التنفسية</div><div class="section-subtitle">CPR Quality Metrics</div></div>
     </div>
-     <div class="section-body">
+    <div class="section-body">
       <div class="field">
         <label>عدد دورات CPR <span class="req">*</span></label>
         <input type="number" id="cprCycles" min="0" step="1" placeholder="عدد الدورات" required>
@@ -629,8 +629,12 @@
     <button class="btn btn-primary" onclick="addRecord()">＋ إضافة السجل</button>
     <button class="btn btn-reset" onclick="resetForm()">↺ مسح النموذج</button>
   </div>
-  <div style="margin-bottom:14px;">
-    <button class="btn" id="clearAllBtn" onclick="clearAllRecords()" style="background:#fff3f3;color:#dc2626;border:1.5px solid #fca5a5;font-size:13px;padding:9px 18px;">🗑 مسح جميع السجلات المحفوظة</button>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+    <label class="btn" id="importBtn" style="background:#f0f7ff;color:#1a5fa8;border:1.5px solid #b0c0d4;cursor:pointer;font-size:13px;padding:9px 18px;text-align:center;">
+      📂 استيراد ملف Excel سابق
+      <input type="file" id="importFile" accept=".xlsx,.xls" style="display:none" onchange="handleImport(event)">
+    </label>
+    <button class="btn" id="clearAllBtn" onclick="clearAllRecords()" style="background:#fff3f3;color:#dc2626;border:1.5px solid #fca5a5;font-size:13px;padding:9px 18px;">🗑 مسح جميع السجلات</button>
   </div>
   <div class="divider"></div>
 
@@ -1190,6 +1194,145 @@ async function exportToExcel() {
   a.click();
   URL.revokeObjectURL(url);
   showToast(`✓ تم تصدير ${records.length} سجل بنجاح`, 'success');
+}
+
+// ── Excel Import ─────────────────────────────────────────────────────────────
+// Column index → record field (0-based, matching row 5 headers)
+// Col 0:م  1:patientName  2:medicalId  3:admissionDate  4:diagnosis  5:ward
+// Col 6:cardiacArrestDate  7:arrestLocation  8:codeBlueTime  9:cprStartTime
+// Col 10:teamArrivalTime  11:responseTime  12:cprCycles  13:defibrillation
+// Col 14:cprEndTime  15:totalDuration  16:finalOutcome  17:hasCprForm
+// Col 18:formComplete  19:dischargeDate  20:dischargeCondition
+// Col 21:deathBefore24h  22:deathAfter24h
+
+function cellStr(cell) {
+  if (cell === undefined || cell === null) return '';
+  const v = (typeof cell === 'object' && cell.text !== undefined) ? cell.text :
+            (typeof cell === 'object' && cell.result !== undefined) ? cell.result :
+            cell;
+  if (v === null || v === undefined) return '';
+  // Excel stores dates as Date objects for date cells
+  if (v instanceof Date) {
+    const y = v.getFullYear();
+    const m = String(v.getMonth()+1).padStart(2,'0');
+    const d = String(v.getDate()).padStart(2,'0');
+    return `${y}-${m}-${d}`;
+  }
+  return String(v).trim();
+}
+
+async function handleImport(event) {
+  const file = event.target.files[0];
+  // Reset the file input so the same file can be re-imported if needed
+  event.target.value = '';
+  if (!file) return;
+
+  const importBtn = document.getElementById('importBtn');
+  const origText = importBtn.childNodes[0].textContent;
+  importBtn.childNodes[0].textContent = '⏳ جاري الاستيراد...';
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const wb = new ExcelJS.Workbook();
+    await wb.xlsx.load(arrayBuffer);
+
+    const ws = wb.worksheets[0];
+    if (!ws) throw new Error('الملف لا يحتوي على بيانات');
+
+    // Find the data rows: skip rows 1-5 (meta + headers), read from row 6 onward
+    // But be flexible: scan for the header row by looking for 'اسم المريض'
+    let dataStartRow = 6; // default
+    ws.eachRow((row, rowNum) => {
+      row.eachCell(cell => {
+        if (typeof cell.value === 'string' && cell.value.includes('اسم المريض')) {
+          dataStartRow = rowNum + 1;
+        }
+      });
+    });
+
+    // Also try to extract meta from row 1
+    let importedHospital = '', importedMonth = '', importedYear = '';
+    try {
+      ws.getRow(1).eachCell(cell => {
+        const v = cellStr(cell.value);
+        const hMatch = v.match(/المستشفى\s*[:\s]+(.+)/);
+        const mMatch = v.match(/شهر\s*[:\s]+(.+)/);
+        const yMatch = v.match(/سنه?\s*[:\s]+(\d{4})/);
+        if (hMatch) importedHospital = hMatch[1].trim();
+        if (mMatch) importedMonth    = mMatch[1].trim();
+        if (yMatch) importedYear     = yMatch[1].trim();
+      });
+    } catch(e) {}
+
+    const imported = [];
+    let skipped = 0;
+
+    ws.eachRow((row, rowNum) => {
+      if (rowNum < dataStartRow) return;
+
+      const cells = [];
+      for (let c = 1; c <= 23; c++) {
+        cells.push(cellStr(row.getCell(c).value));
+      }
+
+      // Skip completely empty rows or header repeats
+      const name = cells[1];
+      if (!name || name === 'اسم المريض الرباعي' || name === 'م') return;
+
+      // Check for duplicate medical ID already in records
+      const mid = cells[2];
+      if (mid && records.some(r => r.medicalId === mid)) { skipped++; return; }
+
+      imported.push({
+        serial       : serial++,
+        governorate  : 'الإسكندرية',
+        hospital     : importedHospital || records[0]?.hospital || '',
+        month        : importedMonth    || records[0]?.month    || '',
+        year         : importedYear     || records[0]?.year     || '',
+        patientName       : cells[1],
+        medicalId         : cells[2],
+        admissionDate     : cells[3],
+        diagnosis         : cells[4],
+        ward              : cells[5],
+        cardiacArrestDate : cells[6],
+        arrestLocation    : cells[7],
+        codeBlueTime      : cells[8],
+        cprStartTime      : cells[9],
+        teamArrivalTime   : cells[10],
+        responseTime      : cells[11],
+        cprCycles         : cells[12],
+        defibrillation    : cells[13],
+        cprEndTime        : cells[14],
+        totalDuration     : cells[15],
+        finalOutcome      : cells[16],
+        hasCprForm        : cells[17],
+        formComplete      : cells[18],
+        dischargeDate     : cells[19],
+        dischargeCondition: cells[20],
+        deathBefore24h    : cells[21],
+        deathAfter24h     : cells[22],
+      });
+    });
+
+    if (!imported.length && !skipped) {
+      showToast('⚠ لم يتم العثور على بيانات في الملف', 'error');
+      return;
+    }
+
+    records.push(...imported);
+    saveToStorage();
+    renderRecords();
+
+    let msg = `✓ تم استيراد ${imported.length} سجل بنجاح`;
+    if (skipped) msg += ` (تم تخطي ${skipped} مكرر)`;
+    showToast(msg, 'success');
+
+  } catch(err) {
+    console.error('Import error:', err);
+    showToast('⚠ خطأ في قراءة الملف: ' + (err.message || 'تأكد أن الملف بصيغة .xlsx'), 'error');
+  } finally {
+    importBtn.childNodes[0].textContent = origText;
+  }
 }
 
 function clearAllRecords() {
